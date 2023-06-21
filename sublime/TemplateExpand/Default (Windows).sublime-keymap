@@ -1,0 +1,16 @@
+[	
+	{ 
+		"keys": ["ctrl+k", "ctrl+l"], 
+		"command": "template_expand",
+		"args": {
+			"action": "expand"
+		}
+	},
+	{ 
+		"keys": ["ctrl+l", "ctrl+k"], 
+		"command": "template_expand",
+		"args": {
+			"action": "collapse"
+		}
+	},
+]

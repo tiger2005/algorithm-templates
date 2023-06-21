@@ -1,0 +1,73 @@
+// decl
+#ifndef TEMPLATE_CPP_GRAPH
+#define TEMPLATE_CPP_GRAPH 1
+#ifndef NO_TEMPLATE_IMPORT
+#include <vector>
+using std::pair;
+using std::vector;
+#endif
+
+// impl
+#include "lib/io.h"
+namespace graph {
+
+struct Graph {
+  int n, m;
+  vector<vector<int> > ft;
+  bool dirt;
+  Graph(int n = 0, int m = 0, bool dirt = false)
+      : n(n), m(m), dirt(dirt) {
+    ft.assign(n + 1, vector<int>{});
+  }
+  void init() {
+    for (int i = 1, a, b; i <= m; i++) {
+      cin >> a >> b;
+      ft[a].emplace_back(b);
+      if (!dirt)
+        ft[b].emplace_back(a);
+    }
+  }
+  void add(int a, int b) {
+    ft[a].emplace_back(b);
+    if (!dirt)
+      ft[b].emplace_back(a);
+  }
+  vector<int>& operator[](const int& x) {
+    return ft[x];
+  }
+};
+
+template <typename T>
+struct GraphLength {
+  int n, m;
+  vector<vector<pair<int, T> > > ft;
+  bool dirt;
+  GraphLength(int n = 0, int m = 0, bool dirt = false)
+      : n(n), m(m), dirt(dirt) {
+    ft.assign(n + 1, vector<pair<int, T> >{});
+  }
+  void init() {
+    T c;
+    for (int i = 1, a, b; i <= m; i++) {
+      cin >> a >> b >> c;
+      ft[a].emplace_back(b, c);
+      if (!dirt)
+        ft[b].emplace_back(a, c);
+    }
+  }
+  void add(int a, int b, T c) {
+    ft[a].emplace_back(b, c);
+    if (!dirt)
+      ft[b].emplace_back(a, c);
+  }
+  vector<pair<int, T> >& operator[](const int& x) {
+    return ft[x];
+  }
+};
+
+}  // namespace graph
+
+using Graph = graph::Graph;
+using GraphL = graph::GraphLength<int>;
+
+#endif
