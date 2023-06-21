@@ -7,7 +7,7 @@ using std::vector;
 #endif
 
 // impl
-namespace graph {
+namespace ds {
 
 struct UnionSet {
   int n;
@@ -31,7 +31,7 @@ struct UnionSet {
   }
 };
 
-}  // namespace graph
+}  // namespace ds
 
-using Union = graph::UnionSet;
+using Union = ds::UnionSet;
 #endif
