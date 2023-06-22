@@ -23,12 +23,12 @@ struct Z {
   Z() { val = 0; }
   template <typename T>
   Z(T x) : val(x % Md) {
-    if (val < 0) val += Md;
+    if (val >> 31) val += Md;
   }
   int getMod() {
     return Md;
   }
-  int powVal(long long y) const {
+  inline int powVal(long long y) const {
     if (y >> 63)
       y = y % (Md - 1) + (Md - 1);
     long long ret = 1, bas = val;
@@ -40,7 +40,7 @@ struct Z {
     }
     return (int) ret;
   }
-  Z pow(long long y) const {
+  inline Z pow(long long y) const {
     if (y >> 63)
       y = y % (Md - 1) + (Md - 1);
     Z ret = 1, bas(*this);
@@ -52,80 +52,84 @@ struct Z {
     }
     return ret;
   }
-  Z inv() const {
+  inline Z inv() const {
     return pow(Md - 2);
   }
-  int invVal() const {
+  inline int invVal() const {
     return powVal(Md - 2);
   }
-  Z operator+() const {
+  inline Z operator+() const {
     Z ret(val);
     return ret;
   }
-  Z operator-() const {
+  inline Z operator-() const {
     Z ret(Md - val);
     if (ret.val >= Md) ret.val -= Md;
     return ret;
   }
 
-  Z operator+=(const Z& z) {
+  inline Z operator+=(const Z& z) {
     if ((val += z.val) >= Md)
       val -= Md;
     return *this;
   }
-  Z operator-=(const Z& z) {
+  inline Z operator-=(const Z& z) {
     if ((val -= z.val) >> 31)
       val += Md;
     return *this;
   }
-  Z operator*=(const Z& z) {
+  inline Z operator*=(const Z& z) {
     val = (long long) val * z.val % Md;
     return *this;
   }
-  Z operator/=(const Z& z) {
+  inline Z operator/=(const Z& z) {
     val = (long long) val * z.invVal() % Md;
     return *this;
   }
-  friend Z operator+(const Z& lhs,
+  inline Z operator = (const Z& z) {
+    val = z.val;
+    return *this;
+  }
+  inline friend Z operator+(const Z& lhs,
                      const Z& rhs) {
     return Z(lhs) += rhs;
   }
-  friend Z operator-(const Z& lhs,
+  inline friend Z operator-(const Z& lhs,
                      const Z& rhs) {
     return Z(lhs) -= rhs;
   }
-  friend Z operator*(const Z& lhs,
+  inline friend Z operator*(const Z& lhs,
                      const Z& rhs) {
     return Z(lhs) *= rhs;
   }
-  friend Z operator/(const Z& lhs,
+  inline friend Z operator/(const Z& lhs,
                      const Z& rhs) {
     return Z(lhs) /= rhs;
   }
-  friend bool operator==(const Z& lhs,
+  inline friend bool operator==(const Z& lhs,
                          const Z& rhs) {
     return lhs.val == rhs.val;
   }
-  friend bool operator!=(const Z& lhs,
+  inline friend bool operator!=(const Z& lhs,
                          const Z& rhs) {
     return lhs.val != rhs.val;
   }
-  Z& operator++() {
+  inline Z& operator++() {
     if ((++val) >= Md)
       val -= Md;
     return *this;
   }
-  Z& operator--() {
+  inline Z& operator--() {
     if ((--val) >> 31)
       val += Md;
     return *this;
   }
-  Z operator++(int) {
+  inline Z operator++(int) {
     Z result(*this);
     *this += 1;
     return result;
   }
-  Z operator--(int) {
+  inline Z operator--(int) {
     Z result(*this);
     *this -= 1;
     return result;
