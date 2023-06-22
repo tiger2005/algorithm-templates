@@ -169,6 +169,14 @@ struct Poly {
   }
 
   inline Poly operator*=(const Poly& P) {
+    if (min(n, P.n) <= 8) {
+      vector<Ele> nw(n + P.n - 1);
+      for (int i = 0; i < n; i ++)
+        for (int j = 0; j < P.n; j ++)
+          nw[i + j] += arr[i] * P.arr[j];
+      n = (arr = nw).size();
+      return *this;
+    }
     Poly p = P.copy();
     int targ = n + p.n - 1;
     int L = get_len(targ), l = get_log(L);
@@ -185,7 +193,7 @@ struct Poly {
     return *this;
   }
 
-  Poly inv() const {
+  inline Poly inv() const {
     Poly res({arr[0].inv()});
     for (int i = 2, k = 2; (i >> 1) < n; i <<= 1, ++k) {
       Poly a = abst(0, i);
@@ -202,34 +210,33 @@ struct Poly {
     return res;
   }
 
-  Poly derivative() const {
+  inline Poly derivative() const {
     Poly res(n - 1);
     for (int i = 1; i < n; i++)
       res[i - 1] = arr[i] * i;
     return res;
   }
 
-  Poly integral() const {
+  inline Poly integral() const {
     Poly res(n + 1);
     for (int i = 0; i < n; i++)
       res[i + 1] = arr[i] / (i + 1);
     return res;
   }
 
-  Poly ln() const {
+  inline Poly ln() const {
     Poly res = derivative() * inv();
     res.resize(n - 1);
     return res.integral();
   }
 
-  Poly exp() const {
+  inline Poly exp() const {
     Poly res(vector<Ele>{1});
     for (int i = 2; (i >> 1) < n; i <<= 1) {
       Poly a = abst(0, i);
       res.resize(i);
       Poly l = res.ln();
-      a -= l;
-      a[0]++;
+      a -= l; a[0]++;
       res *= a;
       res.resize(i);
     }
@@ -237,7 +244,7 @@ struct Poly {
     return res;
   }
 
-  Poly pow(int k) const {
+  inline Poly pow(int k) const {
     int id = -1;
     for (int i = 0; i < n; i++)
       if (arr[i] != 0) {
@@ -254,7 +261,7 @@ struct Poly {
     return res;
   }
 
-  Poly pow(string s) const {
+  inline Poly pow(string s) const {
     int id = -1;
     for (int i = 0; i < n; i++)
       if (arr[i] != 0) {
@@ -283,7 +290,7 @@ struct Poly {
     return res;
   }
 
-  Poly sqrt() const {
+  inline Poly sqrt() const {
     Poly res(vector<Ele>{quadratic_residue(arr[0])});
     for (int i = 2; (i >> 1) < n; i <<= 1) {
       Poly a = abst(0, i);
@@ -297,7 +304,7 @@ struct Poly {
     return res;
   }
 
-  pair<Poly, Poly> div(const Poly& P) const {
+  inline pair<Poly, Poly> div(const Poly& P) const {
     Poly a = copy();
     a.reverse();
     Poly p = P.copy();
