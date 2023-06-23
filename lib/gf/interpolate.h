@@ -6,17 +6,15 @@
 using std::function;
 using std::vector;
 #endif
-
 // impl
 #include "lib/gf/multipoint.h"
 namespace gf {
-template <const int Mod, const int G>
-Poly<Mod, G> interpolate(vector<modular::Z<Mod>> X, vector<modular::Z<Mod>> Y) {
+template <const unsigned int Mod>
+Poly<Mod> interpolate(vector<modular::Z<Mod>> X, vector<modular::Z<Mod>> Y) {
   using Ele = modular::Z<Mod>;
-  using Poly = Poly<Mod, G>;
+  using Poly = Poly<Mod>;
   int n = X.size();
   vector<Poly> Q(4 * n + 1);
-
   static auto dfs_Q = [&X, &Q](auto self, int x, int l, int r) {
     if (l == r)
       return Q[x] = Poly(vector<Ele>{-X[l], 1});
@@ -37,5 +35,4 @@ Poly<Mod, G> interpolate(vector<modular::Z<Mod>> X, vector<modular::Z<Mod>> Y) {
 }
 }  // namespace gf
 using gf::interpolate;
-
 #endif

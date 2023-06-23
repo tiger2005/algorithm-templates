@@ -10,7 +10,6 @@ using std::ofstream;
 using std::string;
 using std::vector;
 #endif
-
 // impl
 #ifdef FREAD
 #define MAXBUFFERSIZE 1000000
@@ -112,5 +111,4 @@ vector<T> getv(int n, int start = 0) {
     cin >> res[i];
   return res;
 }
-
 #endif

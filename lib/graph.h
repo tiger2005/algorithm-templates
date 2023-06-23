@@ -6,11 +6,9 @@
 using std::pair;
 using std::vector;
 #endif
-
 // impl
 #include "lib/io.h"
 namespace graph {
-
 struct Graph {
   int n, m;
   vector<vector<int> > ft;
@@ -36,7 +34,6 @@ struct Graph {
     return ft[x];
   }
 };
-
 template <typename T>
 struct GraphLength {
   int n, m;
@@ -64,10 +61,7 @@ struct GraphLength {
     return ft[x];
   }
 };
-
 }  // namespace graph
-
 using Graph = graph::Graph;
 using GraphL = graph::GraphLength<int>;
-
 #endif

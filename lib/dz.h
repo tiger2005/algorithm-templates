@@ -3,45 +3,66 @@
 #define TEMPLATE_CPP_DZ 1
 #ifndef NO_TEMPLATE_IMPORT
 #endif
-
 // impl
 #include "lib/io.h"
+#include "lib/math/montgomery.h"
 namespace modular {
-
 namespace dynamic {
-
-int Md;
-void setDynamicMod(int Mod) {
+using i32 = int;
+using u32 = unsigned int;
+using u64 = unsigned long long;
+u32 Md;
+u32 r;
+u32 r2;
+u32 mod2;
+void setDynamicMod(u32 Mod) {
   Md = Mod;
+  r = mont_get_r(Md);
+  r2 = -u64(Md) % Md;
+  mod2 = Md << 1;
 }
-int getDynamicMod() {
+u32 getDynamicMod() {
   return Md;
 }
-
 struct Z {
-  int val;
-  Z() { val = 0; }
-  template <typename T>
-  Z(T x) : val(x % Md) {
-    if (val >> 31) val += Md;
+  // implementation from https://loj.ac/s/1232785 by hly1204
+  using i32 = int;
+  using u32 = unsigned int;
+  using u64 = unsigned long long;
+  u32 v_;
+  constexpr Z() : v_(0) {}
+  template <typename T, std::enable_if_t<std::is_integral<T>::value, int> = 0>
+  constexpr Z(T v) : v_(mont_reduce(u64(v % i32(Md) + i32(Md)) * r2, r, Md)) {}
+  constexpr Z(const Z&) = default;
+  static u32 getMod() { return Md; }
+  u32 get() const { return mont_norm(mont_reduce(v_, r, Md), Md); }
+  template <typename T, std::enable_if_t<std::is_integral<T>::value, int> = 0>
+  explicit constexpr operator T() const {
+    return T(get());
   }
-  int getMod() {
-    return Md;
-  }
-  inline int powVal(long long y) const {
-    if (y >> 63)
-      y = y % (Md - 1) + (Md - 1);
-    long long ret = 1, bas = val;
-    while (y) {
-      if (y & 1)
-        (ret *= bas) %= Md;
-      (bas *= bas) %= Md;
-      y >>= 1;
+  static u32 get_primitive_root_prime() {
+    u32 tmp[32] = {};
+    int cnt = 0;
+    const u32 phi = Md - 1;
+    u32 m = phi;
+    for (u32 i = 2; i * i <= m; ++i) {
+      if (m % i == 0) {
+        tmp[cnt++] = i;
+        do {
+          m /= i;
+        } while (m % i == 0);
+      }
     }
-    return (int) ret;
+    if (m != 1) tmp[cnt++] = m;
+    for (Z res = 2;; res++) {
+      bool f = true;
+      for (int i = 0; i < cnt && f; ++i) f &= res.pow(phi / tmp[i]) != 1;
+      if (f) return u32(res);
+    }
   }
-  inline Z pow(long long y) const {
-    if (y >> 63)
+  template <typename T, std::enable_if_t<std::is_signed<T>::value, int> = 0>
+  inline Z pow(T y) const {
+    if (y < 0)
       y = y % (Md - 1) + (Md - 1);
     Z ret = 1, bas(*this);
     while (y) {
@@ -52,76 +73,89 @@ struct Z {
     }
     return ret;
   }
-  inline Z inv() const {
-    return pow(Md - 2);
+  template <typename T, std::enable_if_t<std::is_unsigned<T>::value, int> = 0>
+  inline Z pow(T y) const {
+    Z ret = 1, bas(*this);
+    while (y) {
+      if (y & 1)
+        ret *= bas;
+      bas *= bas;
+      y >>= 1;
+    }
+    return ret;
   }
-  inline int invVal() const {
-    return powVal(Md - 2);
+  template <typename T, std::enable_if_t<std::is_integral<T>::value, int> = 0>
+  inline i32 powVal(T y) const {
+    return pow(y).get();
   }
   inline Z operator+() const {
-    Z ret(val);
+    Z ret(v_);
     return ret;
   }
   inline Z operator-() const {
-    Z ret(Md - val);
-    if (ret.val >= Md) ret.val -= Md;
+    Z ret;
+    ret.v_ = (mod2 & -(v_ != 0)) - v_;
     return ret;
   }
-
+  Z inv() const {
+    i32 x1 = 1, x3 = 0, a = get(), b = Md;
+    while (b) {
+      i32 q = a / b, _x1 = x1, _a = a;
+      x1 = x3, x3 = _x1 - x3 * q, a = b, b = _a - b * q;
+    }
+    return Z(x1);
+  }
+  inline i32 invVal() const {
+    return inv().get();
+  }
   inline Z operator+=(const Z& z) {
-    if ((val += z.val) >= Md)
-      val -= Md;
+    v_ += z.v_ - mod2;
+    v_ += mod2 & -(v_ >> 31);
     return *this;
   }
   inline Z operator-=(const Z& z) {
-    if ((val -= z.val) >> 31)
-      val += Md;
+    v_ -= z.v_;
+    v_ += mod2 & -(v_ >> 31);
     return *this;
   }
   inline Z operator*=(const Z& z) {
-    val = (long long) val * z.val % Md;
+    v_ = mont_reduce(u64(v_) * z.v_, r, Md);
     return *this;
   }
   inline Z operator/=(const Z& z) {
-    val = (long long) val * z.invVal() % Md;
-    return *this;
+    return operator*=(z.inv());
   }
-  inline Z operator = (const Z& z) {
-    val = z.val;
-    return *this;
-  }
-  inline friend Z operator+(const Z& lhs,
+  constexpr Z& operator=(const Z&) = default;
+  friend Z operator+(const Z& lhs,
                      const Z& rhs) {
     return Z(lhs) += rhs;
   }
-  inline friend Z operator-(const Z& lhs,
+  friend Z operator-(const Z& lhs,
                      const Z& rhs) {
     return Z(lhs) -= rhs;
   }
-  inline friend Z operator*(const Z& lhs,
+  friend Z operator*(const Z& lhs,
                      const Z& rhs) {
     return Z(lhs) *= rhs;
   }
-  inline friend Z operator/(const Z& lhs,
+  friend Z operator/(const Z& lhs,
                      const Z& rhs) {
     return Z(lhs) /= rhs;
   }
-  inline friend bool operator==(const Z& lhs,
+  friend bool operator==(const Z& lhs,
                          const Z& rhs) {
-    return lhs.val == rhs.val;
+    return mont_norm(lhs.v_, Md) == mont_norm(rhs.v_, Md);
   }
-  inline friend bool operator!=(const Z& lhs,
+  friend bool operator!=(const Z& lhs,
                          const Z& rhs) {
-    return lhs.val != rhs.val;
+    return mont_norm(lhs.v_, Md) != mont_norm(rhs.v_, Md);
   }
   inline Z& operator++() {
-    if ((++val) >= Md)
-      val -= Md;
+    (*this) += 1;
     return *this;
   }
   inline Z& operator--() {
-    if ((--val) >> 31)
-      val += Md;
+    (*this) -= 1;
     return *this;
   }
   inline Z operator++(int) {
@@ -135,7 +169,7 @@ struct Z {
     return result;
   }
   friend std::ostream& operator<<(std::ostream& os, const Z& m) {
-    return os << m.val;
+    return os << m.get();
   }
   friend std::istream& operator>>(std::istream& is, Z& m) {
     long long x;
@@ -150,16 +184,12 @@ struct Z {
     return is;
   }
   bool operator<(const Z& z) const {
-    return val < z.val;
+    return get() < z.get();
   }
 };
-
 }  // namespace dynamic
-
 }  // namespace modular
-
 using dZ = modular::dynamic::Z;
 using modular::dynamic::getDynamicMod;
 using modular::dynamic::setDynamicMod;
-
 #endif

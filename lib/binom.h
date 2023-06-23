@@ -5,11 +5,9 @@
 #include <vector>
 using std::vector;
 #endif
-
 // impl
 #include "lib/z.h"
 namespace math_basis {
-
 template <typename T>
 struct Factors {
   int n;
@@ -29,7 +27,6 @@ struct Factors {
     return facts[x];
   }
 };
-
 template <int Md>
 struct Inv {
   using Z = modular::Z<Md>;
@@ -50,7 +47,6 @@ struct Inv {
     return invs[x];
   }
 };
-
 template <int Md>
 struct Inv_Factors {
   using Z = modular::Z<Md>;
@@ -74,7 +70,6 @@ struct Inv_Factors {
     return invfs[x];
   }
 };
-
 template <int Md>
 struct Binom_facts {
   using Z = modular::Z<Md>;
@@ -96,7 +91,6 @@ struct Binom_facts {
     return f[x] * invf[y] * invf[x - y];
   }
 };
-
 template <typename T>
 struct Binom_bf {
   int n = 0;
@@ -112,13 +106,10 @@ struct Binom_bf {
     return ret;
   }
 };
-
 }  // namespace math_basis
-
 using Fact = math_basis::Factors<Z>;
 using Inv = math_basis::Inv<Md>;
 using Invf = math_basis::Inv_Factors<Md>;
 using Binom = math_basis::Binom_facts<Md>;
 using Binom_bf = math_basis::Binom_bf<Z>;
-
 #endif

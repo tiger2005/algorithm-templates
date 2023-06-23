@@ -2,69 +2,62 @@
 #ifndef TEMPLATE_CPP_POLY_TRIGON
 #define TEMPLATE_CPP_POLY_TRIGON 1
 #ifndef NO_TEMPLATE_IMPORT
-
 #endif
-
 // impl
 #include "lib/gf/poly.h"
 namespace gf {
-
-template <const int Mod, const int G>
-Poly<Mod, G> fsin(const Poly<Mod, G> &f) {
+template <const unsigned int Mod>
+Poly<Mod> fsin(const Poly<Mod> &f) {
   using Ele = modular::Z<Mod>;
-  Ele i = Z(G).pow((Mod - 1) / 4);
-  Poly<Mod, G> res = ((f * i).exp() - (f * (-i)).exp()) / (2 * i);
+  Ele i = Ele(f.G).pow((Mod - 1) / 4);
+  Poly<Mod> res = ((f * i).exp() - (f * (-i)).exp()) / (2 * i);
   res.resize(f.size());
   return res;
 }
-
-template <const int Mod, const int G>
-Poly<Mod, G> fcos(const Poly<Mod, G> &f) {
+template <const unsigned int Mod>
+Poly<Mod> fcos(const Poly<Mod> &f) {
   using Ele = modular::Z<Mod>;
-  Ele i = Z(G).pow((Mod - 1) / 4);
-  Poly<Mod, G> res = ((f * i).exp() + (f * (-i)).exp()) / 2;
+  Ele i = Ele(f.G).pow((Mod - 1) / 4);
+  Poly<Mod> res = ((f * i).exp() + (f * (-i)).exp()) / Ele(2);
   res.resize(f.size());
   return res;
 }
-
-template <const int Mod, const int G>
-Poly<Mod, G> ftan(const Poly<Mod, G> &f) {
-  Poly<Mod, G> res = fsin(f) / fcos(f);
+template <const unsigned int Mod>
+Poly<Mod> ftan(const Poly<Mod> &f) {
+  Poly<Mod> res = fsin(f) / fcos(f);
   res.resize(f.size());
   return res;
 }
-
-template <const int Mod, const int G>
-Poly<Mod, G> fasin(const Poly<Mod, G> &f) {
-  Poly<Mod, G> p = f.copy();
-  p *= p; p.resize(f.size());
-  p.nega(); ++ p[0];
-  Poly<Mod, G> res = f.derivative() / p.sqrt();
+template <const unsigned int Mod>
+Poly<Mod> fasin(const Poly<Mod> &f) {
+  Poly<Mod> p = f;
+  p *= p;
+  p.resize(f.size());
+  p.nega();
+  ++p[0];
+  Poly<Mod> res = f.derivative() / p.sqrt();
   res.resize(p.size() - 1);
   return res.integral();
 }
-
-template <const int Mod, const int G>
-Poly<Mod, G> facos(const Poly<Mod, G> &f) {
+template <const unsigned int Mod>
+Poly<Mod> facos(const Poly<Mod> &f) {
   return -fasin(f);
 }
-
-template <const int Mod, const int G>
-Poly<Mod, G> fatan(const Poly<Mod, G> &f) {
-  Poly<Mod, G> p = f.copy();
-  p *= p; p.resize(f.size());
-  ++ p[0];
-  Poly<Mod, G> res = f.derivative() / p;
+template <const unsigned int Mod>
+Poly<Mod> fatan(const Poly<Mod> &f) {
+  Poly<Mod> p = f;
+  p *= p;
+  p.resize(f.size());
+  ++p[0];
+  Poly<Mod> res = f.derivative() / p;
   res.resize(p.size() - 1);
   return res.integral();
 }
-
 }  // namespace gf
-
+using gf::facos;
+using gf::fasin;
+using gf::fatan;
 using gf::fcos;
 using gf::fsin;
 using gf::ftan;
-using gf::fasin;
-using gf::facos;
-using gf::fatan;
 #endif

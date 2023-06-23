@@ -11,14 +11,14 @@ using std::pair;
 #include "lib/z.h"
 namespace math {
 
-template <const int Mod>
+template <const unsigned int Mod>
 modular::Z<Mod> quadratic_residue(modular::Z<Mod> n) {
   if (n == 0)
     return Z(0);
   if (n.pow((Mod - 1) / 2) != 1)
     return Z(0);
   Z a = 0;
-  for (int i = 0; i < Mod; i++) {
+  for (unsigned int i = 0; i < Mod; i++) {
     if ((Z(i) * i - n).pow((Mod - 1) / 2) == Mod - 1) {
       a = i;
       break;

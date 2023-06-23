@@ -11,13 +11,13 @@ using std::pair;
 namespace math {
 
 dZ quadratic_residue(dZ n) {
-  int Mod = getDynamicMod();
+  unsigned int Mod = getDynamicMod();
   if (n == 0)
     return dZ(0);
   if (n.pow((Mod - 1) / 2) != 1)
     return dZ(0);
   dZ a = 0;
-  for (int i = 0; i < Mod; i++) {
+  for (unsigned int i = 0; i < Mod; i++) {
     if ((dZ(i) * i - n).pow((Mod - 1) / 2) == Mod - 1) {
       a = i;
       break;

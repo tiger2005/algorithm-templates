@@ -5,7 +5,6 @@
 #include <vector>
 using std::vector;
 #endif
-
 // impl
 template <typename T>
 struct HashTable {
@@ -19,5 +18,4 @@ struct HashTable {
   T operator[](const int t) const { return val[t - 1]; }
   int size() { return val.size(); }
 };
-
 #endif

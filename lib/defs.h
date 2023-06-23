@@ -7,7 +7,6 @@
 using std::string;
 using std::vector;
 #endif
-
 // impl
 #include "lib/io.h"
 #define readV(l, r, A) \
@@ -37,26 +36,20 @@ inline void YON(bool x, string str) { printf("%s%s", (x) ? "YES" : "NO", str.c_s
   int totCases = readInt(); \
   for (int currCase = 1; currCase <= totCases; currCase++)
 typedef long long LL;
-
 template <typename T>
 void sort(vector<T>& v) { sort(ALL(v)); }
-
 template <typename T>
 vector<T> sorted(vector<T> v) { return sort(v), v; }
-
 template <typename T>
 void reverse(vector<T>& v) { reverse(ALL(v)); }
-
 template <typename T>
 vector<T> reversed(vector<T> v) { return reverse(v), v; }
-
 bool in(char ch, string str) {
   for (auto x : str)
     if (ch == x)
       return true;
   return false;
 }
-
 template <typename T>
 bool in(T v, vector<T> V) {
   for (auto x : V)
@@ -64,5 +57,4 @@ bool in(T v, vector<T> V) {
       return true;
   return false;
 }
-
 #endif

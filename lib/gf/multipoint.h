@@ -7,31 +7,29 @@ using std::function;
 using std::max;
 using std::vector;
 #endif
-
 // impl
 #include "lib/gf/poly.h"
 #include "lib/z.h"
 namespace gf {
-template <const int Mod, const int G>
-Poly<Mod, G> mul_T(Poly<Mod, G> a, Poly<Mod, G> b) {
+template <const unsigned int Mod>
+Poly<Mod> mul_T(Poly<Mod> a, Poly<Mod> b) {
   b.reverse();
   int n = a.size(), m = b.size();
   a *= b;
   return a.abst(m - 1, n + m - 1);
 }
-
-template <const int Mod, const int G>
-vector<modular::Z<Mod>> multipoint(Poly<Mod, G> f, vector<modular::Z<Mod>> v) {
+template <const unsigned int Mod>
+vector<modular::Z<Mod>> multipoint(Poly<Mod> f, vector<modular::Z<Mod>> v) {
   using Ele = modular::Z<Mod>;
   int N = v.size();
   int n = max(f.size(), (int) v.size());
   f.resize(n + 1);
   v.resize(n);
   vector<Ele> res(n);
-  vector<Poly<Mod, G>> Q(4 * n + 1);
+  vector<Poly<Mod>> Q(4 * n + 1);
   static auto dfs_Q = [&](auto self, int x, int l, int r) {
     if (l == r) {
-      Q[x] = Poly<Mod, G>(vector<Ele>{1, -v[l]});
+      Q[x] = Poly<Mod>(vector<Ele>{1, -v[l]});
       return;
     }
     int m = (l + r) >> 1;
@@ -55,6 +53,5 @@ vector<modular::Z<Mod>> multipoint(Poly<Mod, G> f, vector<modular::Z<Mod>> v) {
   return res;
 }
 }  // namespace gf
-
 using gf::multipoint;
 #endif
