@@ -25,7 +25,7 @@
 |                            模板题                            |                     提交记录                     |  时间（最大 / 全部）   | 规模    |
 | :-: | :-: | :-: | --- |
 | [P3803 【模板】多项式乘法（FFT）](https://www.luogu.com.cn/problem/P3803) |  [#](https://www.luogu.com.cn/record/113164712)  |     293ms / 754ms      | $10^6$  |
-| [P4238 【模板】多项式乘法逆](https://www.luogu.com.cn/problem/P4238) | [#]((https://www.luogu.com.cn/record/113165037)) |      37ms / 262ms      | $10^5$  |
+| [P4238 【模板】多项式乘法逆](https://www.luogu.com.cn/problem/P4238) | [#](https://www.luogu.com.cn/record/113165037) |      37ms / 262ms      | $10^5$  |
 | [P4725 【模板】多项式对数函数（多项式 ln）](https://www.luogu.com.cn/problem/P4725) |  [#](https://www.luogu.com.cn/record/113165104)  |      53ms / 265ms      | $10^5$  |
 | [P4726 【模板】多项式指数函数（多项式 exp）](https://www.luogu.com.cn/problem/P4726) |  [#](https://www.luogu.com.cn/record/113165166)  |      42ms / 204ms      | $10^5$  |
 | [P5273 【模板】多项式幂函数（加强版）](https://www.luogu.com.cn/problem/P5273) |  [#](https://www.luogu.com.cn/record/113165716)  |      82ms / 669ms      | $10^5$  |
