@@ -23,7 +23,7 @@
 下面是对这个模板库的简单测试，引用了 IO 库和 Poly 类实现必要的库。若无特殊说明，统一禁用 **块读**，并使用 `C++20` 和 `O2` 编译开关。
 
 |                            模板题                            |                     提交记录                     |  时间（最大 / 全部）   | 规模    |
-| :-: | :-: | :-: | --- |
+| :-: | :-: | :-: | :-: |
 | [P3803 【模板】多项式乘法（FFT）](https://www.luogu.com.cn/problem/P3803) |  [#](https://www.luogu.com.cn/record/113164712)  |     293ms / 754ms      | $10^6$  |
 | [P4238 【模板】多项式乘法逆](https://www.luogu.com.cn/problem/P4238) | [#](https://www.luogu.com.cn/record/113165037) |      37ms / 262ms      | $10^5$  |
 | [P4725 【模板】多项式对数函数（多项式 ln）](https://www.luogu.com.cn/problem/P4725) |  [#](https://www.luogu.com.cn/record/113165104)  |      53ms / 265ms      | $10^5$  |

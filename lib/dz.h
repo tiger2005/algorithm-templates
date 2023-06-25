@@ -168,16 +168,8 @@ struct Z {
     *this -= 1;
     return result;
   }
-  friend std::ostream& operator<<(std::ostream& os, const Z& m) {
-    return os << m.get();
-  }
-  friend std::istream& operator>>(std::istream& is, Z& m) {
-    long long x;
-    is >> x;
-    m = x;
-    return is;
-  }
-  friend inline const IOReader& operator>>(const IOReader& is, Z& m) {
+  template <typename T>
+  friend inline const T& operator>>(const T& is, dZ& m) {
     long long x;
     is >> x;
     m = x;

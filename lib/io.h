@@ -22,7 +22,7 @@ inline char fgetc() {
 #endif
 #define gc getchar
 struct IOReader {
-  template <typename T>
+  template <typename T, std::enable_if_t<std::is_integral<T>::value, int> = 0>
   inline const IOReader& operator>>(T& a) const {
     a = 0;
     bool flg = false;
@@ -46,14 +46,10 @@ struct IOReader {
     return *this;
   }
   inline const IOReader& operator>>(char* a) const {
-#ifdef FREAD
     char ch = gc();
     while (isspace(ch) && ch != EOF) ch = gc();
     while (!isspace(ch) && ch != EOF) *(a++) = ch, ch = gc();
     *a = '\0';
-#else
-    scanf(" %s", a);
-#endif
     return *this;
   }
   inline const IOReader& operator>>(char& a) const {
@@ -61,40 +57,38 @@ struct IOReader {
     while (isspace(a)) a = gc();
     return *this;
   }
-#define importRealReader(type)                       \
-  inline const IOReader& operator>>(type& a) const { \
-    a = 0;                                           \
-    bool flg = false;                                \
-    char ch = gc();                                  \
-    while ((ch < '0' || ch > '9') && ch != '.') {    \
-      if (ch == '-') flg ^= 1;                       \
-      ch = gc();                                     \
-    }                                                \
-    while (ch >= '0' && ch <= '9') {                 \
-      a = a * 10 + (ch ^ '0');                       \
-      ch = gc();                                     \
-    }                                                \
-    if (ch == '.') {                                 \
-      ch = gc();                                     \
-      type p = 0.1;                                  \
-      while (ch >= '0' && ch <= '9') {               \
-        a += p * (ch ^ '0');                         \
-        ch = gc();                                   \
-        p *= 0.1;                                    \
-      }                                              \
-    }                                                \
-    if (flg) a = -a;                                 \
-    return *this;                                    \
+  template <typename T, std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
+  inline const IOReader& operator>>(T& a) const {
+    a = 0;
+    bool flg = false;
+    char ch = gc();
+    while ((ch < '0' || ch > '9') && ch != '.') {
+      if (ch == '-') flg ^= 1;
+      ch = gc();
+    }
+    while (ch >= '0' && ch <= '9') {
+      a = a * 10 + (ch ^ '0');
+      ch = gc();
+    }
+    if (ch == '.') {
+      ch = gc();
+      T p = 0.1;
+      while (ch >= '0' && ch <= '9') {
+        a += p * (ch ^ '0');
+        ch = gc();
+        p *= 0.1;
+      }
+    }
+    if (flg) a = -a;
+    return *this;
   }
-  importRealReader(float) importRealReader(double) importRealReader(long double)
 #undef importRealReader
 };
-const IOReader iocin;
-#define cin iocin
+const IOReader io;
 #define importReader(type, name) \
   type name() {                  \
     type a(0);                   \
-    cin >> a;                    \
+    io >> a;                     \
     return a;                    \
   }
 importReader(int, readInt) importReader(unsigned int, readUInt)
@@ -108,7 +102,7 @@ template <typename T = int>
 vector<T> getv(int n, int start = 0) {
   vector<T> res(start + n);
   for (int i = start; i < start + n; i++)
-    cin >> res[i];
+    io >> res[i];
   return res;
 }
 #endif
