@@ -82,7 +82,7 @@ struct IOReader {
     return *this;
   }
   template <typename T1, typename T2>
-  inline const IOReader& operator>>(std::pair<T1, T2> p) const {
+  inline const IOReader& operator>>(std::pair<T1, T2> &p) const {
     return operator>>(p.first), operator>>(p.second), *this;
   }
 #undef importRealReader
