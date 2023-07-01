@@ -10,6 +10,7 @@ using std::string;
 using std::vector;
 #endif
 // impl
+namespace io_lib {
 #ifdef FREAD
 #define MAXBUFFERSIZE 1000000
 inline char fgetc() {
@@ -21,7 +22,7 @@ inline char fgetc() {
 #endif
 #define gc getchar
 struct IOReader {
-  template <typename T, std::enable_if_t<std::is_integral<T>::value, int> = 0>
+  template <typename T, typename std::enable_if<std::is_integral<T>::value, int>::type = 0>
   inline const IOReader& operator>>(T& a) const {
     a = 0;
     bool flg = false;
@@ -56,7 +57,7 @@ struct IOReader {
     while (isspace(a)) a = gc();
     return *this;
   }
-  template <typename T, std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
+  template <typename T, typename std::enable_if<std::is_floating_point<T>::value, int>::type = 0>
   inline const IOReader& operator>>(T& a) const {
     a = 0;
     bool flg = false;
@@ -108,4 +109,6 @@ vector<T> getv(int n, int start = 0) {
     io >> res[i];
   return res;
 }
+}
+using namespace io_lib;
 #endif

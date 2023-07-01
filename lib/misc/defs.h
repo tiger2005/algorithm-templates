@@ -10,6 +10,7 @@ using std::pair;
 #endif
 // impl
 #include "lib/misc/io.h"
+namespace defs {
 #define readV(l, r, A) \
   for (int tiger2005 = (l); tiger2005 <= (r); tiger2005++) io >> A[tiger2005]
 #define outR(l, r, A, sp) \
@@ -55,4 +56,6 @@ vector<pair<int, T>> index(vector<T> v, int n = 0) {
     res.emplace_back(n ++, v[i]);
   return res;
 }
+}
+using namespace defs;
 #endif
