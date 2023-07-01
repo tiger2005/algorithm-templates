@@ -6,7 +6,7 @@
 using std::vector;
 #endif
 // impl
-#include "lib/z.h"
+#include "lib/math/z.h"
 namespace math_basis {
 template <typename T>
 struct Factors {

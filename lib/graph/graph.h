@@ -7,7 +7,7 @@ using std::pair;
 using std::vector;
 #endif
 // impl
-#include "lib/io.h"
+#include "lib/misc/io.h"
 namespace graph {
 struct Graph {
   int n, m;
@@ -19,7 +19,7 @@ struct Graph {
   }
   void init() {
     for (int i = 1, a, b; i <= m; i++) {
-      cin >> a >> b;
+      io >> a >> b;
       ft[a].emplace_back(b);
       if (!dirt)
         ft[b].emplace_back(a);
@@ -46,7 +46,7 @@ struct GraphLength {
   void init() {
     T c;
     for (int i = 1, a, b; i <= m; i++) {
-      cin >> a >> b >> c;
+      io >> a >> b >> c;
       ft[a].emplace_back(b, c);
       if (!dirt)
         ft[b].emplace_back(a, c);

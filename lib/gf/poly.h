@@ -16,7 +16,7 @@ using std::vector;
 // impl
 #include "lib/math/log2.h"
 #include "lib/math/quadratic_mod.h"
-#include "lib/z.h"
+#include "lib/math/z.h"
 namespace gf {
 // https://loj.ac/d/3165
 inline int get_len(int n) { return --n, n |= n >> 1, n |= n >> 2, n |= n >> 4, n |= n >> 8, n |= n >> 16, ++n; }

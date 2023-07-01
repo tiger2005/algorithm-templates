@@ -8,7 +8,7 @@ using std::pair;
 #endif
 
 // impl
-#include "lib/z.h"
+#include "lib/math/z.h"
 namespace math {
 
 template <const unsigned int Mod>

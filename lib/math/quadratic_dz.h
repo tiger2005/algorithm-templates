@@ -2,12 +2,13 @@
 #ifndef TEMPLATE_CPP_QUADRATIC_DZ
 #define TEMPLATE_CPP_QUADRATIC_DZ 1
 #ifndef NO_TEMPLATE_IMPORT
-#include "lib/dz.h"
+#include <algorithm>
 using std::min;
 using std::pair;
 #endif
 
 // impl
+#include "lib/math/dz.h"
 namespace math {
 
 dZ quadratic_residue(dZ n) {

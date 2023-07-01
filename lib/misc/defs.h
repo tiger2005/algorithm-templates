@@ -6,9 +6,10 @@
 #include <vector>
 using std::string;
 using std::vector;
+using std::pair;
 #endif
 // impl
-#include "lib/io.h"
+#include "lib/misc/io.h"
 #define readV(l, r, A) \
   for (int tiger2005 = (l); tiger2005 <= (r); tiger2005++) io >> A[tiger2005]
 #define outR(l, r, A, sp) \
@@ -46,5 +47,12 @@ bool in(T v, vector<T> V) {
     if (v == x)
       return true;
   return false;
+}
+template <typename T>
+vector<pair<int, T>> index(vector<T> v, int n = 0) {
+  vector<pair<int, T>> res;
+  for (int i = 0; i < (int)v.size(); i ++)
+    res.emplace_back(n ++, v[i]);
+  return res;
 }
 #endif

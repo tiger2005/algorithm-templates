@@ -9,7 +9,7 @@ using std::vector;
 #endif
 // impl
 #include "lib/gf/poly.h"
-#include "lib/z.h"
+#include "lib/math/z.h"
 namespace gf {
 template <const unsigned int Mod>
 Poly<Mod> mul_T(Poly<Mod> a, Poly<Mod> b) {

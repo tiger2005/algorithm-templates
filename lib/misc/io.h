@@ -2,7 +2,6 @@
 #ifndef TEMPLATE_CPP_IO
 #define TEMPLATE_CPP_IO 1
 #ifndef NO_TEMPLATE_IMPORT
-#include <iostream>
 #include <string>
 #include <vector>
 using std::ifstream;
@@ -81,6 +80,10 @@ struct IOReader {
     }
     if (flg) a = -a;
     return *this;
+  }
+  template <typename T1, typename T2>
+  inline const IOReader& operator>>(std::pair<T1, T2> p) const {
+    return operator>>(p.first), operator>>(p.second), *this;
   }
 #undef importRealReader
 };
