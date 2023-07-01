@@ -26,6 +26,7 @@ struct Graph {
     }
   }
   void add(int a, int b) {
+    ++ m;
     ft[a].emplace_back(b);
     if (!dirt)
       ft[b].emplace_back(a);
@@ -36,6 +37,7 @@ struct Graph {
 };
 template <typename T>
 struct GraphLength {
+  typedef T value_type;
   int n, m;
   vector<vector<pair<int, T> > > ft;
   bool dirt;
@@ -53,6 +55,7 @@ struct GraphLength {
     }
   }
   void add(int a, int b, T c) {
+    ++ m;
     ft[a].emplace_back(b, c);
     if (!dirt)
       ft[b].emplace_back(a, c);
