@@ -37,3 +37,18 @@
 | [P5265 多项式反三角函数](https://www.luogu.com.cn/problem/P5265) |  [#](https://www.luogu.com.cn/record/113167794)  |      94ms / 463ms      | $10^5$  |
 |           [#150. 挑战多项式](https://loj.ac/p/150)           |          [#](https://loj.ac/s/1801919)           |     156ms / 2849ms     | $10^5$  |
 | [#150. 挑战多项式](https://loj.ac/p/150)（`-Ofast`，启动块读） |          [#](https://loj.ac/s/1801921)           | **106ms** / **2065ms** | $10^5$  |
+
+#### 2023/7/4：更新了其他操作
+
+这次更新增加了对斯特林数行 / 列求解的支持、Chirp Z 变换的实现，以及函数在上升幂 / 下降幂域上的相关操作。同时，这次更新也对一些函数的操作进行了微调。
+
+| 模板题 | 提交记录（最优解排名） | 时间（最大 / 全部） | 规模 |
+| :-: | :-: | :-: | :-: |
+| [P6800 【模板】Chirp Z-Transform](https://www.luogu.com.cn/problem/P6800) | [#](https://www.luogu.com.cn/record/113853163) (#7) | 261ms / 1.86s | $10^6$ |
+| [P5408 第一类斯特林数·行](https://www.luogu.com.cn/problem/P5408) | [#](https://www.luogu.com.cn/record/113890000) (#3) | 90ms / 439ms | $2^{18}$ |
+| [P5409 第一类斯特林数·列](https://www.luogu.com.cn/problem/P5409) | [#](https://www.luogu.com.cn/record/113887359) (#3) | 93ms / 446ms | $2^{17}$ |
+| [P5395 第二类斯特林数·行](https://www.luogu.com.cn/problem/P5395) | [#](https://www.luogu.com.cn/record/113884399) (#2) | 66ms / 352ms | $2 \times 10^5$ |
+| [P5396 第二类斯特林数·列](https://www.luogu.com.cn/problem/P5396) | [#](https://www.luogu.com.cn/record/113885860) (#4) | 92ms / 446ms | $2^{17}$ |
+| [P5394 【模板】下降幂多项式乘法](https://www.luogu.com.cn/problem/P5394) | [#](https://www.luogu.com.cn/record/113920364) (#4) | 155ms / 1.15s | $10^5$ |
+| [P5383 普通多项式转下降幂多项式](https://www.luogu.com.cn/problem/P5383) | [#](https://www.luogu.com.cn/record/113923967) (#17) | 476ms / 3.35s | $10^5$ |
+| [P5393 下降幂多项式转普通多项式](https://www.luogu.com.cn/problem/P5393) | [#](https://www.luogu.com.cn/record/113926495) (#5) | 356ms / 2.50s | $2 \times 10^5$ |
