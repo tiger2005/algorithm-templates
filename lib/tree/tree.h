@@ -81,15 +81,18 @@ struct Tree {
   inline const vector<int>& operator[](int x) { return son[x]; }
   inline bool visited(int x) { return fa[x] != 0; }
   inline int father(int x) { return fa[x]; }
-  #if OBT & OBTAIN_TREE_VALUE
-  inline T value(int x) { return val[x]; }
-  #endif
-  #if OBT & OBTAIN_TREE_DEPTH
-  inline int depth(int x) { return deps[x]; }
-  #endif
-  #if OBT & OBTAIN_TREE_SIZE
-  inline int size(int x) { return sizes[x]; }
-  #endif
+  inline T value(int x) {
+    static_assert(OBT & OBTAIN_TREE_VALUE, "No value provided");
+    return val[x];
+  }
+  inline int depth(int x) {
+    static_assert(OBT & OBTAIN_TREE_DEPTH, "No depth provided");
+    return deps[x];
+  }
+  inline int size(int x) {
+    static_assert(OBT & OBTAIN_TREE_SIZE, "No value provided");
+    return sizes[x];
+  }
 };
 }
 using Tree = tree::Tree<int>;

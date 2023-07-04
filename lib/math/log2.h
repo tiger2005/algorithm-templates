@@ -9,7 +9,6 @@
 // impl
 // https://en.wikipedia.org/wiki/De_Bruijn_sequence
 namespace math {
-
 unsigned int get_log(unsigned long long n) {  // assume n is power of 2
   static constexpr unsigned long long deBruijn = 0x022fdd63cc95386d;
   static constexpr unsigned int convert[64] = {
@@ -18,8 +17,8 @@ unsigned int get_log(unsigned long long n) {  // assume n is power of 2
       23, 58, 17, 10, 51, 25, 36, 32, 60, 20, 57, 16, 50, 31, 19, 15, 30, 14, 13, 12};
   return convert[n * deBruijn >> 58];
 }
+inline constexpr int get_len(int n) { return --n, n |= n >> 1, n |= n >> 2, n |= n >> 4, n |= n >> 8, n |= n >> 16, ++n; }
 }  // namespace math
-
 using math::get_log;
-
+using math::get_len;
 #endif

@@ -7,8 +7,8 @@ using std::vector;
 #endif
 // impl
 #include "lib/math/z.h"
-namespace math_basis {
-template <typename T>
+namespace math {
+template <typename T = Z>
 struct Factors {
   int n;
   vector<T> facts;
@@ -27,9 +27,9 @@ struct Factors {
     return facts[x];
   }
 };
-template <int Md>
+template <const unsigned int Mod = Md>
 struct Inv {
-  using Z = modular::Z<Md>;
+  using Z = modular::Z<Mod>;
   vector<Z> invs;
   int n = 0;
   Inv(int x = 1) {
@@ -40,17 +40,17 @@ struct Inv {
   void assign(int x) {
     while (n < x) {
       ++n;
-      invs.push_back(Z(invs[Md % n]) * (Md - Md / n));
+      invs.push_back(Z(invs[Mod % n]) * (Mod - Mod / n));
     }
   }
   Z operator[](int x) {
     return invs[x];
   }
 };
-template <int Md>
+template <const unsigned int Mod = Md>
 struct Inv_Factors {
-  using Z = modular::Z<Md>;
-  Inv<Md> invs;
+  using Z = modular::Z<Mod>;
+  Inv<Mod> invs;
   vector<Z> invfs;
   int n = 0;
   Inv_Factors(int x = 1) {
@@ -70,11 +70,11 @@ struct Inv_Factors {
     return invfs[x];
   }
 };
-template <int Md>
+template <const unsigned int Mod = Md>
 struct Binom_facts {
-  using Z = modular::Z<Md>;
+  using Z = modular::Z<Mod>;
   Factors<Z> f;
-  Inv_Factors<Md> invf;
+  Inv_Factors<Mod> invf;
   int n = 0;
   Binom_facts(int x = 1) {
     n = 1;
@@ -91,7 +91,7 @@ struct Binom_facts {
     return f[x] * invf[y] * invf[x - y];
   }
 };
-template <typename T>
+template <typename T = Z>
 struct Binom_bf {
   int n = 0;
   Binom_bf() {
@@ -99,17 +99,17 @@ struct Binom_bf {
   }
   T get(int x, int y) {
     if (x < y || y < 0)
-      return 0;
+      return T();
     T ret(1);
     for (int i = x; i >= (x - y + 1); i--)
       ret = ret * i / (x - i + 1);
     return ret;
   }
 };
-}  // namespace math_basis
-using Fact = math_basis::Factors<Z>;
-using Inv = math_basis::Inv<Md>;
-using Invf = math_basis::Inv_Factors<Md>;
-using Binom = math_basis::Binom_facts<Md>;
-using Binom_bf = math_basis::Binom_bf<Z>;
+}  // namespace math
+using math::Factors;
+using math::Inv;
+using math::Inv_Factors;
+using math::Binom_facts;
+using math::Binom_bf;
 #endif
