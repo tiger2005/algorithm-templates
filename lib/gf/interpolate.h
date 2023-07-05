@@ -15,7 +15,7 @@ Poly<Mod> interpolate(vector<modular::Z<Mod>> X, vector<modular::Z<Mod>> Y) {
   using Poly = Poly<Mod>;
   int n = X.size();
   vector<Poly> Q(4 * n + 1);
-  static auto dfs_Q = [&X, &Q](auto self, int x, int l, int r) {
+  auto dfs_Q = [&X, &Q](auto self, int x, int l, int r) {
     if (l == r)
       return Q[x] = Poly(vector<Ele>{-X[l], 1});
     int m = (l + r) >> 1;
@@ -25,7 +25,7 @@ Poly<Mod> interpolate(vector<modular::Z<Mod>> X, vector<modular::Z<Mod>> Y) {
   vector<Ele> T;
   for (int i = 0; i < n; i++)
     T.push_back(Y[i] / q[i]);
-  static auto dfs = [&Q, &T](auto self, int x, int l, int r) {
+  auto dfs = [&Q, &T](auto self, int x, int l, int r) {
     if (l == r)
       return Poly(vector<Ele>{T[l]});
     int m = (l + r) >> 1;

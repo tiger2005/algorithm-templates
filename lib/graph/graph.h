@@ -17,7 +17,7 @@ struct Graph {
       : n(n), m(m), dirt(dirt) {
     ft.assign(n + 1, vector<int>{});
   }
-  void init() {
+  inline constexpr void init() {
     for (int i = 1, a, b; i <= m; i++) {
       io >> a >> b;
       ft[a].emplace_back(b);
@@ -25,7 +25,8 @@ struct Graph {
         ft[b].emplace_back(a);
     }
   }
-  void add(int a, int b) {
+  inline void extend(int _n) { ft.resize((n = _n) + 1); }
+  inline void add(int a, int b) {
     ++ m;
     ft[a].emplace_back(b);
     if (!dirt)
@@ -45,7 +46,7 @@ struct GraphLength {
       : n(n), m(m), dirt(dirt) {
     ft.assign(n + 1, vector<pair<int, T> >{});
   }
-  void init() {
+  inline constexpr void init() {
     T c;
     for (int i = 1, a, b; i <= m; i++) {
       io >> a >> b >> c;
@@ -54,7 +55,8 @@ struct GraphLength {
         ft[b].emplace_back(a, c);
     }
   }
-  void add(int a, int b, T c) {
+  inline void extend(int _n) { ft.resize((n = _n) + 1); }
+  inline void add(int a, int b, T c) {
     ++ m;
     ft[a].emplace_back(b, c);
     if (!dirt)

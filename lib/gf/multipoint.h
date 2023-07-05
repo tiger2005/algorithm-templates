@@ -27,7 +27,7 @@ vector<modular::Z<Mod>> multipoint(Poly<Mod> f, vector<modular::Z<Mod>> v) {
   v.resize(n);
   vector<Ele> res(n);
   vector<Poly<Mod>> Q(4 * n + 1);
-  static auto dfs_Q = [&](auto self, int x, int l, int r) {
+  auto dfs_Q = [&](auto self, int x, int l, int r) {
     if (l == r) {
       Q[x] = Poly<Mod>(vector<Ele>{1, -v[l]});
       return;
@@ -38,7 +38,7 @@ vector<modular::Z<Mod>> multipoint(Poly<Mod> f, vector<modular::Z<Mod>> v) {
     Q[x] = Q[x << 1] * Q[x << 1 | 1];
   };
   dfs_Q(dfs_Q, 1, 0, n - 1);
-  static auto dfs = [&](auto self, int x, int l, int r, auto F) {
+  auto dfs = [&](auto self, int x, int l, int r, auto F) {
     F.resize(r - l + 1);
     if (l == r) {
       res[l] = F[0];

@@ -121,13 +121,13 @@ struct Poly {
     for (auto& val : arr) val *= dvd;
     return *this;
   }
-  inline Poly& operator <<=(const unsigned int DIG) {
+  inline Poly& operator<<=(const unsigned int DIG) {
     const int n = arr.size(); arr.resize(n + DIG);
     for (unsigned int i = n + DIG - 1; !(i >> 31); i --)
       arr[i] = (i >= DIG) ? arr[i - DIG] : 0;
     return *this;
   }
-  inline Poly& operator >>=(const unsigned int DIG) {
+  inline Poly& operator>>=(const unsigned int DIG) {
     const int n = arr.size();
     if (n <= DIG) arr.clear();
     else {

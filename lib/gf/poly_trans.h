@@ -40,7 +40,7 @@ Poly<Mod> dec_to_norm(Poly<Mod> f) {
   using Z = modular::Z<Mod>;
   using Poly = Poly<Mod>;
   // use divide-and-conquer method here
-  static auto dfs = [&] (auto self, int l, int r, bool first = true) -> pair<Poly, Poly> {
+  auto dfs = [&] (auto self, int l, int r, bool first = true) -> pair<Poly, Poly> {
     if (l == r)
       return {Poly({Z(-l), Z(1)}), Poly({Z(f[l])})};
     int m = (l + r) >> 1;

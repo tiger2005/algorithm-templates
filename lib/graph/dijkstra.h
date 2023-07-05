@@ -14,7 +14,7 @@ using std::pair;
 #include "lib/graph/graph.h"
 namespace graph {
 template <typename T, typename T1>
-vector<T> dijkstra(GraphLength<T1> g, vector<int> s, T maxv
+vector<T> dijkstra(GraphLength<T1> &g, vector<int> s, T maxv
   , function<T(const T&, const T1&)> acceletare = [](const T& a, const T1& b) -> T {
     return a + b;
   }) {
@@ -46,7 +46,7 @@ vector<T> dijkstra(GraphLength<T1> g, vector<int> s, T maxv
 }
 // single point alias
 template <typename T, typename T1>
-vector<T> dijkstra(GraphLength<T1> g, int s, T maxv
+vector<T> dijkstra(GraphLength<T1> &g, int s, T maxv
   , function<T(const T&, const T1&)> acceletare = [](const T& a, const T1& b) {
     return a + b;
   }) {
