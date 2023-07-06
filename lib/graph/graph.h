@@ -36,7 +36,7 @@ struct Graph {
     return ft[x];
   }
 };
-template <typename T>
+template <typename T = int>
 struct GraphLength {
   typedef T value_type;
   int n, m;
@@ -67,6 +67,6 @@ struct GraphLength {
   }
 };
 }  // namespace graph
-using Graph = graph::Graph;
-using GraphL = graph::GraphLength<int>;
+using graph::Graph;
+using graph::GraphLength;
 #endif

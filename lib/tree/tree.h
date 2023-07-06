@@ -11,7 +11,7 @@ using std::vector;
 #define OBTAIN_TREE_DEPTH 2
 #define OBTAIN_TREE_SIZE 4
 namespace tree {
-template <typename T, const unsigned short OBT = 0>
+template <typename T = int, const unsigned short OBT = 0>
 struct Tree {
   int n, root;
   vector<T> val;
@@ -19,7 +19,7 @@ struct Tree {
   vector<vector<int>> son;
   vector<int> deps;
   vector<int> sizes;
-  Tree (int n, int root = 1, T p = T()) :n(n), root(root) {
+  Tree (int n, int root = -1, T p = T()) :n(n), root(root) {
     son.assign(n + 1, vector<int>{});
     fa.assign(n + 1, 0);
     if constexpr (OBT & OBTAIN_TREE_VALUE) val.assign(n + 1, p);
@@ -29,53 +29,59 @@ struct Tree {
     if constexpr (OBT & OBTAIN_TREE_SIZE) sizes.assign(n + 1, 0);
     else sizes.clear();
   }
-  void init(bool value = false) {
+  void init(int nr = -1, bool value = OBT & OBTAIN_TREE_VALUE) {
+    if (nr == -1 && root != -1)
+      nr = root;
     if (value) {
       graph::GraphLength<T> g(n, n - 1);
-      g.init(); init(g);
+      g.init(); init(g, nr);
     }
     else {
       Graph g(n, n - 1);
-      g.init(); init(g);
+      g.init(); init(g, nr);
     }
   }
   void init(Graph g, int nr = -1) {
-    if (nr == -1)
-      nr = root;
-    fa[nr] = nr;
-    if constexpr (OBT & OBTAIN_TREE_DEPTH) deps[nr] = 1;
-    auto dfs = [&] (auto self, int x) -> void {
-      if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] = 1;
-      for (auto v: g[x]) {
-        if (fa[v])
-          continue;
-        son[x].push_back(v);
-        if constexpr (OBT & OBTAIN_TREE_DEPTH) deps[v] = deps[x] + 1;
-        fa[v] = x; self(self, v);
-        if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] += sizes[v];
+    for (int i = 1; i <= n; i ++) {
+      if (nr == i || (nr == -1 && !fa[i])) {
+        fa[i] = i; root = i;
+        if constexpr (OBT & OBTAIN_TREE_DEPTH) deps[i] = 1;
+        auto dfs = [&] (auto self, int x) -> void {
+          if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] = 1;
+          for (auto v: g[x]) {
+            if (fa[v])
+              continue;
+            son[x].push_back(v);
+            if constexpr (OBT & OBTAIN_TREE_DEPTH) deps[v] = deps[x] + 1;
+            fa[v] = x; self(self, v);
+            if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] += sizes[v];
+          }
+        };
+        dfs(dfs, i);
       }
-    };
-    dfs(dfs, nr);
+    }
   }
   void init(graph::GraphLength<T> g, int nr = -1) {
-    if (nr == -1)
-      nr = root;
-    fa[nr] = nr;
-    if constexpr (OBT & OBTAIN_TREE_DEPTH) deps[nr] = 1;
-    auto dfs = [&] (auto self, int x) -> void {
-      if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] = 1;
-      for (auto [v, w]: g[x]) {
-        if (fa[v])
-          continue;
-        son[x].push_back(v);
-        if constexpr (OBT & OBTAIN_TREE_DEPTH) deps[v] = deps[x] + 1;
-        if constexpr (OBT & OBTAIN_TREE_VALUE) val[v] = w;
-        fa[v] = x;
-        self(self, v);
-        if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] += sizes[v];
+    for (int i = 1; i <= n; i ++) {
+      if (nr == i || (nr == -1 && !fa[i])) {
+        fa[i] = i; root = i;
+        if constexpr (OBT & OBTAIN_TREE_DEPTH) deps[i] = 1;
+        auto dfs = [&] (auto self, int x) -> void {
+          if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] = 1;
+          for (auto [v, w]: g[x]) {
+            if (fa[v])
+              continue;
+            son[x].push_back(v);
+            if constexpr (OBT & OBTAIN_TREE_DEPTH) deps[v] = deps[x] + 1;
+            if constexpr (OBT & OBTAIN_TREE_VALUE) val[v] = w;
+            fa[v] = x;
+            self(self, v);
+            if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] += sizes[v];
+          }
+        };
+        dfs(dfs, i);
       }
-    };
-    dfs(dfs, nr);
+    }
   }
   inline const vector<int>& sons(int x) { return son[x]; }
   inline const vector<int>& operator[](int x) { return son[x]; }
@@ -90,10 +96,10 @@ struct Tree {
     return deps[x];
   }
   inline int size(int x) {
-    static_assert(OBT & OBTAIN_TREE_SIZE, "No value provided");
+    static_assert(OBT & OBTAIN_TREE_SIZE, "No size provided");
     return sizes[x];
   }
 };
 }
-using Tree = tree::Tree<int>;
+using tree::Tree;
 #endif
