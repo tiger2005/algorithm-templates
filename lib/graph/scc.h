@@ -15,7 +15,7 @@ int scc(Graph &g, vector<int> &col, vector<int> &dep) {
   dep.resize(g.n + 1);
   vector<int> dfn(g.n + 1), low(g.n + 1), stk(g.n + 1);
   vector<bool> in(g.n + 1);
-  static auto dfs = [&] (auto self, int u) -> void {
+  auto dfs = [&] (auto self, int u) -> void {
     low[u] = dfn[u] = ++ idx;
     in[stk[++ tp] = u] = true;
     for (auto v: g[u]) {
