@@ -8,11 +8,9 @@ using std::function;
 using std::vector;
 using std::pair;
 #endif
-
 // impl
 #include "lib/tree/tree.h"
 namespace ds {
-
 template <typename T, typename T1, const unsigned short OBT>
 struct TreeST {
   static_assert(OBT & OBTAIN_TREE_DEPTH, "Depth should be provided");
@@ -80,16 +78,13 @@ struct TreeST {
     return {tableFa[0][l], {op(res1, table[0][l]), op(res2, table[0][r])}};
   }
 };
-
 template <typename T, const unsigned short OBT = 0>
 TreeST<T, T, OBT> build_tree_st(Tree<T, OBT> &t, function<T(const T &, const T &)> func = TreeST<T, T, OBT>::default_func, T e = T()) {
   TreeST<T, T, OBT> res;
   res.init(t, t.val, func, e);
   return res;
 }
-
 }  // namespace ds
-
 using ds::TreeST;
 using ds::build_tree_st;
 #endif

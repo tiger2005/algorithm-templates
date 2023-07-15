@@ -5,10 +5,8 @@
 #include <vector>
 using std::vector;
 #endif
-
 // impl
 namespace ds {
-
 struct UnionSet {
   int n;
   vector<int> fa;
@@ -30,8 +28,6 @@ struct UnionSet {
     return getF(x);
   }
 };
-
 }  // namespace ds
-
 using Union = ds::UnionSet;
 #endif

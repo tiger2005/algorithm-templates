@@ -69,8 +69,6 @@ struct TreeLCA {
     return tableFa[0][l];
   }
 };
-
 }  // namespace ds
-
 using tree::TreeLCA;
 #endif

@@ -7,10 +7,8 @@
 using std::function;
 using std::vector;
 #endif
-
 // impl
 namespace ds {
-
 template<typename T>
 struct BIT {
   int n;
@@ -44,8 +42,6 @@ struct BIT {
     return res;
   }
 };
-
 }
-
 using ds::BIT;
 #endif

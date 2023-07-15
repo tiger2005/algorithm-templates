@@ -7,10 +7,8 @@
 using std::function;
 using std::vector;
 #endif
-
 // impl
 namespace ds {
-
 template <typename T>
 struct ST {
   vector<vector<T>> table;
@@ -47,8 +45,6 @@ struct ST {
     return op(table[u][l], table[u][r - (1 << u) + 1]);
   }
 };
-
 }  // namespace ds
-
 using ds::ST;
 #endif
