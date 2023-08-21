@@ -91,7 +91,7 @@ struct IOReader {
 const IOReader io;
 #define importReader(type, name) \
   type name() {                  \
-    type a(0);                   \
+    type a;                     \
     io >> a;                     \
     return a;                    \
   }

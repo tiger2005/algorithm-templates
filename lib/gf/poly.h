@@ -70,11 +70,6 @@ inline void recalcRoots(const int Mod, const int G, int len) {
 }
 
 template <const unsigned int Mod>
-struct Poly;
-template <const unsigned int Mod>
-vector<modular::Z<Mod>> relaxed_mul(int n, const Poly<Mod>& f, function<modular::Z<Mod>(int, vector<modular::Z<Mod>>&)> func);
-
-template <const unsigned int Mod>
 struct Poly {
   using Ele = modular::Z<Mod>;
   static constexpr unsigned int G = Ele::get_primitive_root_prime();
@@ -86,6 +81,7 @@ struct Poly {
     for (auto it = b; it != e; it++) arr.push_back(*it);
   }
   inline Poly& resize(int _n) { return arr.resize(_n), *this; }
+  inline void push_back(Ele v) { arr.push_back(v); }
   inline void reverse() { std::reverse(arr.begin(), arr.end()); }
   constexpr int getMod() { return Mod; }
   constexpr int getG() { return G; }
@@ -258,15 +254,7 @@ struct Poly {
     return res.integral();
   }
   // O(n log^2 n)
-  inline Poly exp() const {
-    Poly d = derivative();
-    recalcInvs(Mod, size());
-    return Poly(relaxed_mul<Mod>(
-        size(), d,
-        [&](int idx, vector<Ele>& vals) -> Ele {
-          return idx == 0 ? 1 : vals[idx - 1] * invs[idx];
-        }));
-  }
+  inline Poly exp() const;
   inline Poly pow(long long k) const {
     int id = -1;
     for (int i = 0; i < size(); i++)
@@ -359,22 +347,33 @@ struct Poly {
 };
 
 template <const unsigned int Mod>
-vector<modular::Z<Mod>> relaxed_mul(int n, const Poly<Mod>& f, function<modular::Z<Mod>(int, vector<modular::Z<Mod>>&)> func) {
+struct HalfOnlineConv {
+  using Ele = modular::Z<Mod>;
+  using Func = gf::Poly<Mod>;
   static const int BASE_BITS = 5;
   static const int CONQUER_BITS = 4;
   static const int BASE_MASK = (1 << BASE_BITS) - 1;
   static const int CONQUER_MASK = (1 << CONQUER_BITS) - 1;
-  int N = n;
-  N = (N >> BASE_BITS) + (bool) (N & BASE_MASK);
-  N = get_log(get_len(N));
-  N = (N + CONQUER_BITS - 1) / CONQUER_BITS;
-  // N conquer group in total
-  using Ele = modular::Z<Mod>; using Poly = Poly<Mod>;
-  vector<Ele> diagonal_sum(n), res(n);
-  vector<Ele> a = f.abst(0, 1 << BASE_BITS).raw();
-  vector<vector<Poly>> tmp_f(N, vector<Poly>(CONQUER_MASK));
-  vector<vector<Poly>> tmp_g(N, vector<Poly>(CONQUER_MASK));
-  for (int i = 0; i != n; i++) {
+
+  int N, n, i;
+  Func f;
+  vector<Ele> diagonal_sum, g_;
+  vector<Ele> a;
+  vector<vector<Func>> tmp_f, tmp_g;
+
+  void init(int size, Func func) {
+    N = n = size; f = func; i = 0;
+    N = (N >> BASE_BITS) + (bool) (N & BASE_MASK);
+    N = get_log(get_len(N));
+    N = (N + CONQUER_BITS - 1) / CONQUER_BITS;
+    diagonal_sum = vector<Ele>(n);
+    g_ = vector<Ele>(n);
+    a = f.abst(0, 1 << BASE_BITS).raw();
+    tmp_f = tmp_g = vector<vector<Func>>(N, vector<Func>(CONQUER_MASK));
+  }
+  HalfOnlineConv(int _n, Func _f) { init(_n, _f); }
+  HalfOnlineConv(Func _f) { init(_f.size(), _f); }
+  void calc() {
     int gi = i & BASE_MASK;
     if (gi == 0 && i != 0) {
       // full
@@ -384,14 +383,14 @@ vector<modular::Z<Mod>> relaxed_mul(int n, const Poly<Mod>& f, function<modular:
       // mid-way
       int csize2 = csize << 1, K = get_log(csize2), uid = u & CONQUER_MASK;
       if (uid == u) {
-        Poly& p = tmp_f[ci][uid - 1];
+        Func& p = tmp_f[ci][uid - 1];
         p = f.abst((uid - 1) * csize, (uid + 1) * csize);
         p.dft(K);
       }
-      vector<Poly>& _g = tmp_g[ci];
-      _g[uid - 1] = Poly(res.cbegin() + (i - csize), res.cbegin() + i);
+      vector<Func>& _g = tmp_g[ci];
+      _g[uid - 1] = Func(g_.cbegin() + (i - csize), g_.cbegin() + i);
       _g[uid - 1].resize(csize2); _g[uid - 1].dft(K);
-      Poly tmp(csize2);
+      Func tmp(csize2);
       for (int j = 0; j != uid; j++)
         for (int k = 0; k != csize2; k++)
           tmp[k] += tmp_f[ci][uid - 1 - j][k] * _g[j][k];
@@ -400,11 +399,39 @@ vector<modular::Z<Mod>> relaxed_mul(int n, const Poly<Mod>& f, function<modular:
         diagonal_sum[j + i] += tmp[csize + j];
     }
     for (int j = 1; j <= gi; j++)
-      diagonal_sum[i] += a[j] * res[i - j];
-    diagonal_sum[i] += a[0] * (res[i] = func(i, diagonal_sum));
+      diagonal_sum[i] += a[j] * g_[i - j];
   }
-  return res;
+  Ele get(int x) {
+    if (x < 0 || x >= n)
+      return 0;
+    return diagonal_sum[x];
+  }
+  Ele current() { return get(i); }
+  Ele set(Ele v) {
+    diagonal_sum[i] += a[0] * (g_[i] = v);
+    if (++ i < n) return calc(), diagonal_sum[i];
+    return 0;
+  }
+  vector<Ele> g() { return g_; }
+  vector<Ele> fg() { return diagonal_sum; }
+};
+
+template <const unsigned int Mod>
+Poly<Mod> Poly<Mod>::exp() const {
+  using Func = Poly<Mod>;
+  if (size() == 1)
+    return Func({1});
+  Func d = derivative();
+  d.resize(size());
+  recalcInvs(Mod, size());
+  HalfOnlineConv worker(d);
+  Func::Ele e = worker.set(1);
+  for (int i = 1; i < size(); i ++)
+    e = worker.set(worker.get(i - 1) * invs[i]);
+  return Func(worker.g());
 }
+
 }  // namespace gf
 using Poly = gf::Poly<Md3>;
+using gf::HalfOnlineConv;
 #endif

@@ -6,12 +6,8 @@
 - `poly.h`：整个 `Poly` 的实现，依赖于 `Z`，`log2` 和二次剩余；
 - `multipoint.h`：实现了多项式多点求值；
 - `interpolate.h`：实现了多项式快速插值；
-- `poly_trigon.h`：实现了多项式三角函数和多项式反三角函数。
-
-待完成：
-- 复数类 `FFT`；
-- 下降幂多项式相关计算；
-- 任意模数多项式计算方案。
+- `poly_trigon.h`：实现了多项式三角函数和多项式反三角函数；
+- 还有很多其他的东西。
 
 感谢 hly1204 的悉心教导（？），以及以下博客的启发：
 - https://oi-wiki.org/math/poly/intro/ OI Wiki 的全套介绍；
@@ -52,3 +48,11 @@
 | [P5394 【模板】下降幂多项式乘法](https://www.luogu.com.cn/problem/P5394) | [#](https://www.luogu.com.cn/record/113920364) (#4) | 155ms / 1.15s | $10^5$ |
 | [P5383 普通多项式转下降幂多项式](https://www.luogu.com.cn/problem/P5383) | [#](https://www.luogu.com.cn/record/113923967) (#17) | 476ms / 3.35s | $10^5$ |
 | [P5393 下降幂多项式转普通多项式](https://www.luogu.com.cn/problem/P5393) | [#](https://www.luogu.com.cn/record/113926495) (#5) | 356ms / 2.50s | $2 \times 10^5$ |
+
+#### 2023/8/21：更新了半在线卷积和全在线卷积的类
+
+这次更新重新封装了 `poly.h` 中使用到的半在线卷积类并加以暴露，与此同时加入了 `online_conv.h` 类，对全在线卷积加以支持。
+
+需要注意的是，两个类中实现的 `set()` 和 `current()` 函数返回的均为 **当前等待确定的位置** 对应的对角线中 **其余已经确定下来的位置** 的和。对于半在线卷积而言，这个对角线和缺了一项 $f_0 \times g_n$，而全在线卷积缺的是 $f_0 \times g_n + g_0 \times f_n$。
+
+半在线卷积部分使用 Middle Product 加速，全在线卷积部分采用基础的四分叉做法。

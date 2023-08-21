@@ -8,25 +8,24 @@ using std::vector;
 // impl
 namespace ds {
 struct UnionSet {
-  int n;
+  int n, siz;
   vector<int> fa;
   UnionSet(int n = 0) : n(n) {
+    siz = n;
     fa.assign(n + 1, 0);
     for (int i = 1; i <= n; i++)
       fa[i] = i;
   }
-  int getF(int x) {
-    return x == fa[x] ? x : fa[x] = getF(fa[x]);
-  }
-  void link(int x, int y) {
+  int getF(int x) { return x == fa[x] ? x : fa[x] = getF(fa[x]); }
+  bool link(int x, int y) {
     x = getF(x);
     y = getF(y);
     if (x != y)
-      fa[x] = y;
+      return fa[x] = y, -- siz, true;
+    return false;
   }
-  int operator[](const int& x) {
-    return getF(x);
-  }
+  int operator[](const int& x) { return getF(x); }
+  int size() { return siz; }
 };
 }  // namespace ds
 using Union = ds::UnionSet;

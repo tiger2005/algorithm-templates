@@ -16,6 +16,8 @@ struct stirling2_fact {
   T get(int n, int m) {
     if (n < m || m < 0)
       return T();
+    if (n == 0)
+      return T(1);
     T res(0); invf.assign(n);
     for (int i = 1; i <= m; i ++) {
       if ((m - i) & 1)

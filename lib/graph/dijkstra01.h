@@ -13,8 +13,8 @@ using std::deque;
 // impl
 #include "lib/graph/graph.h"
 namespace graph {
-template <typename T, typename T1>
-vector<T> dijkstra01(GraphLength<T1> &g, vector<int> s, T maxv
+template <typename T1, typename T = int>
+vector<T> dijkstra01(GraphLength<T1> &g, vector<int> s, T maxv = std::numeric_limits<T>::max()
   , function<T(const T&, const T1&)> acceletare = [](const T& a, const T1& b) -> T {
     return a + b;
   }) {
@@ -46,12 +46,13 @@ vector<T> dijkstra01(GraphLength<T1> &g, vector<int> s, T maxv
   return res;
 }
 // single point alias
-template <typename T, typename T1>
-vector<T> dijkstra01(GraphLength<T1> &g, int s, T maxv
+template <typename T1, typename T = int>
+vector<T> dijkstra01(GraphLength<T1> &g, int s, T maxv = std::numeric_limits<T>::max()
   , function<T(const T&, const T1&)> acceletare = [](const T& a, const T1& b) {
     return a + b;
   }) {
   return dijkstra01(g, vector<int>{s}, maxv, acceletare);
 }
 }
+using graph::dijkstra01;
 #endif
