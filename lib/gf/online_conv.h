@@ -22,7 +22,7 @@ struct OnlineConv {
 		unit = 2;
 	}
 	Ele get(int x) {
-		if (x < 0 || x >= fg_.size())
+		if (x < 0 || x >= (int)fg_.size())
 			return 0;
 		return fg_[x];
 	}

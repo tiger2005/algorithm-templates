@@ -86,7 +86,9 @@ struct Poly {
   constexpr int getMod() { return Mod; }
   constexpr int getG() { return G; }
   inline int size() const { return static_cast<int>(arr.size()); }
-  void nega() { for (auto& ele : arr) ele = -ele; }
+  void nega() {
+    for (auto& ele : arr) ele = -ele;
+  }
   vector<Ele> raw() const { return arr; }
   inline Poly abst(int start = 0, int end = -1) const {
     if (end == -1) end = size();
@@ -118,16 +120,18 @@ struct Poly {
     return *this;
   }
   inline Poly& operator<<=(const unsigned int DIG) {
-    const int n = arr.size(); arr.resize(n + DIG);
-    for (unsigned int i = n + DIG - 1; !(i >> 31); i --)
+    const int n = arr.size();
+    arr.resize(n + DIG);
+    for (unsigned int i = n + DIG - 1; !(i >> 31); i--)
       arr[i] = (i >= DIG) ? arr[i - DIG] : 0;
     return *this;
   }
   inline Poly& operator>>=(const unsigned int DIG) {
     const int n = arr.size();
-    if (n <= DIG) arr.clear();
+    if (n <= DIG)
+      arr.clear();
     else {
-      for (int i = 0; i < n - DIG; i ++)
+      for (int i = 0; i < n - DIG; i++)
         arr[i] = arr[i + DIG];
       arr.resize(n - DIG);
     }
@@ -138,13 +142,15 @@ struct Poly {
       l = i >> 1;
       for (int j = 0; j != l; j++) {
         Ele u = arr[j], v = arr[j + l];
-        arr[j] = u + v; arr[j + l] = u - v;
+        arr[j] = u + v;
+        arr[j + l] = u - v;
       }
       for (int j = i, m = 1; j != size(); j += i, ++m) {
         Ele r = roots[m];
         for (int k = 0; k != l; k++) {
           Ele u = arr[j + k], v = arr[j + k + l] * r;
-          arr[j + k] = u + v; arr[j + k + l] = u - v;
+          arr[j + k] = u + v;
+          arr[j + k + l] = u - v;
         }
       }
     }
@@ -154,13 +160,15 @@ struct Poly {
       l = i >> 1;
       for (int j = 0; j != l; j++) {
         Ele u = arr[j], v = arr[j + l];
-        arr[j] = u + v; arr[j + l] = u - v;
+        arr[j] = u + v;
+        arr[j + l] = u - v;
       }
       for (int j = i, m = 1; j != size(); j += i, ++m) {
         Ele r = roots[m];
         for (int k = 0; k != l; k++) {
           Ele u = arr[j + k], v = arr[j + k + l];
-          arr[j + k] = u + v; arr[j + k + l] = (u - v) * r;
+          arr[j + k] = u + v;
+          arr[j + k + l] = (u - v) * r;
         }
       }
     }
@@ -173,14 +181,22 @@ struct Poly {
       for (int i = 0; i < size(); i++)
         for (int j = 0; j < P.size(); j++)
           nw[i + j] += arr[i] * P.arr[j];
-      arr = nw; return *this;
+      arr = nw;
+      return *this;
     }
-    Poly p = P; int targ = size() + p.size() - 1;
+    Poly p = P;
+    int targ = size() + p.size() - 1;
     int L = get_len(targ), l = get_log(L);
-    resize(L); dft(l);
-    if (this != &p) { p.resize(L); p.dft(l); }
+    resize(L);
+    dft(l);
+    if (this != &p) {
+      p.resize(L);
+      p.dft(l);
+    }
     for (int i = 0; i < L; i++) arr[i] *= p[i];
-    idft(l); resize(targ); return *this;
+    idft(l);
+    resize(targ);
+    return *this;
   }
   // 10E(n), can 9E(n)
   inline Poly inv() const {
@@ -194,8 +210,11 @@ struct Poly {
       res[i] = sm * res[0];
     }
     for (int i = 64, k = 6; i <= len; i <<= 1, ++k) {
-      Poly f = abst(0, i); res.resize(i);
-      Poly g = res; f.dft(k); g.dft(k);
+      Poly f = abst(0, i);
+      res.resize(i);
+      Poly g = res;
+      f.dft(k);
+      g.dft(k);
       for (int j = 0; j < i; j++) f[j] *= g[j];
       f.idft(k);
       for (int j = 0; j < (i >> 1); j++) f[j] = 0;
@@ -208,12 +227,18 @@ struct Poly {
   }
   // ??E(n)
   inline Poly quick_div(const Poly& p) const {
-    Poly F = p.abst(0, size()); int len = get_len(size());
+    Poly F = p.abst(0, size());
+    int len = get_len(size());
     Poly g0({F[0].inv()}), q0({g0[0] * arr[0]}), _g0;
     for (int i = 2, k = 1; i <= len; i <<= 1, k++) {
-      Poly f = F.abst(0, i); g0.resize(i);
-      _g0 = g0; _g0.dft(k); q0.resize(i);
-      Poly _q0 = q0; f.dft(k); _q0.dft(k);
+      Poly f = F.abst(0, i);
+      g0.resize(i);
+      _g0 = g0;
+      _g0.dft(k);
+      q0.resize(i);
+      Poly _q0 = q0;
+      f.dft(k);
+      _q0.dft(k);
       for (int j = 0; j < i; j++) f[j] *= _q0[j];
       f.idft(k);
       for (int j = 0; j < (i >> 1); j++) f[j] = 0;
@@ -223,7 +248,8 @@ struct Poly {
       f.idft(k);
       for (int j = (i >> 1); j < i; j++) q0[j] -= f[j];
       if (i != len) {
-        f = F.abst(0, i); Poly g = g0;
+        f = F.abst(0, i);
+        Poly g = g0;
         f.dft(k);
         for (int j = 0; j < i; j++) f[j] *= _g0[j];
         f.idft(k);
@@ -258,18 +284,26 @@ struct Poly {
   inline Poly pow(long long k) const {
     int id = -1;
     for (int i = 0; i < size(); i++)
-      if (arr[i] != 0) { id = i; break; }
+      if (arr[i] != 0) {
+        id = i;
+        break;
+      }
     if (id == -1 || id >= (size() + k - 1) / k)
       return Poly(size());
     Poly a = abst(id, id + size() - (id * k)) / arr[id];
-    if (a.size() == 1) a *= arr[id].pow(k);
-    else a = (a.ln() * Ele(k)).exp() * arr[id].pow(k);
+    if (a.size() == 1)
+      a *= arr[id].pow(k);
+    else
+      a = (a.ln() * Ele(k)).exp() * arr[id].pow(k);
     return a << (id * k);
   }
   inline Poly pow(string s) const {
     int id = -1;
     for (int i = 0; i < size(); i++)
-      if (arr[i] != 0) { id = i; break; }
+      if (arr[i] != 0) {
+        id = i;
+        break;
+      }
     if (id != -1) {
       long long tmp = 0;
       for (auto ch : s) {
@@ -277,15 +311,18 @@ struct Poly {
           return Poly(size());
       }
     }
-    Ele r1; unsigned long long r2 = 0;
+    Ele r1;
+    unsigned long long r2 = 0;
     for (auto ch : s) {
       r1 = r1 * 10 + (ch - '0');
       r2 = (r2 * 10 + (ch - '0')) % (Mod - 1);
     }
     unsigned int k = r1.get();
     Poly a = abst(id, id + size() - (id * k)) / arr[id];
-    if (a.size() == 1) a *= arr[id].pow(r2);
-    else a = (a.ln() * Ele(k)).exp() * arr[id].pow(r2);
+    if (a.size() == 1)
+      a *= arr[id].pow(r2);
+    else
+      a = (a.ln() * Ele(k)).exp() * arr[id].pow(r2);
     return a << (id * k);
   }
   // 11E(n), 10.5E(n) if inv => 9E(n)
@@ -297,19 +334,26 @@ struct Poly {
     for (int i = 2, k = 1; i <= len; i <<= 1, k++) {
       Poly a = abst(0, i);
       for (int j = 0; j < (i >> 1); j++) tmp[j] *= tmp[j];
-      tmp.idft(k - 1); tmp.resize(i);
+      tmp.idft(k - 1);
+      tmp.resize(i);
       for (int j = 0; j != (i >> 1) - 1; j++) {
         tmp[j + (i >> 1)] = tmp[j] - a[j] - a[j + (i >> 1)];
         tmp[j] = 0;
       }
-      tmp[(i >> 1) - 1] = 0; tmp[i - 1] -= a[i - 1];
-      h0.resize(i); Poly _h = h0; _h.dft(k);
+      tmp[(i >> 1) - 1] = 0;
+      tmp[i - 1] -= a[i - 1];
+      h0.resize(i);
+      Poly _h = h0;
+      _h.dft(k);
       tmp.dft(k);
       for (int j = 0; j < i; j++) tmp[j] *= _h[j];
-      tmp.idft(k); g0.resize(i);
+      tmp.idft(k);
+      g0.resize(i);
       for (int j = (i >> 1); j < i; j++) g0[j] = tmp[j] * iv2;
       if (i != len || inv) {
-        tmp = g0; tmp.dft(k); Poly nw(i);
+        tmp = g0;
+        tmp.dft(k);
+        Poly nw(i);
         for (int j = 0; j < i; j++) nw[j] = _h[j] * tmp[j];
         nw.idft(k);
         for (int j = 0; j < (i >> 1); j++) nw[j] = 0;
@@ -324,15 +368,24 @@ struct Poly {
     return g0.resize(size()), g0;
   }
   inline pair<Poly, Poly> div(const Poly& P) const {
-    Poly a = (*this); a.reverse();
-    Poly p = P; p.reverse();
-    int m = p.size(); p.resize(size() - m + 1);
-    a = a / p; a.resize(size() - m + 1); a.reverse();
-    Poly r = (*this) - a * P; r.resize(m - 1);
+    Poly a = (*this);
+    a.reverse();
+    Poly p = P;
+    p.reverse();
+    int m = p.size();
+    p.resize(size() - m + 1);
+    a = a / p;
+    a.resize(size() - m + 1);
+    a.reverse();
+    Poly r = (*this) - a * P;
+    r.resize(m - 1);
     return make_pair(a, r);
   }
   friend constexpr Poly operator+(const Poly& lhs, const Poly& rhs) { return Poly(lhs) += rhs; }
-  friend constexpr Poly operator-(const Poly& lhs) { Poly res(lhs); return res.nega(), res; }
+  friend constexpr Poly operator-(const Poly& lhs) {
+    Poly res(lhs);
+    return res.nega(), res;
+  }
   friend constexpr Poly operator-(const Poly& lhs, const Poly& rhs) { return Poly(lhs) -= rhs; }
   friend constexpr Poly operator*(const Poly& lhs, const Ele rhs) { return Poly(lhs) *= rhs; }
   friend constexpr Poly operator<<(const Poly& lhs, const unsigned int rhs) { return Poly(lhs) <<= rhs; }
@@ -362,7 +415,9 @@ struct HalfOnlineConv {
   vector<vector<Func>> tmp_f, tmp_g;
 
   void init(int size, Func func) {
-    N = n = size; f = func; i = 0;
+    N = n = size;
+    f = func;
+    i = 0;
     N = (N >> BASE_BITS) + (bool) (N & BASE_MASK);
     N = get_log(get_len(N));
     N = (N + CONQUER_BITS - 1) / CONQUER_BITS;
@@ -389,7 +444,8 @@ struct HalfOnlineConv {
       }
       vector<Func>& _g = tmp_g[ci];
       _g[uid - 1] = Func(g_.cbegin() + (i - csize), g_.cbegin() + i);
-      _g[uid - 1].resize(csize2); _g[uid - 1].dft(K);
+      _g[uid - 1].resize(csize2);
+      _g[uid - 1].dft(K);
       Func tmp(csize2);
       for (int j = 0; j != uid; j++)
         for (int k = 0; k != csize2; k++)
@@ -409,7 +465,7 @@ struct HalfOnlineConv {
   Ele current() { return get(i); }
   Ele set(Ele v) {
     diagonal_sum[i] += a[0] * (g_[i] = v);
-    if (++ i < n) return calc(), diagonal_sum[i];
+    if (++i < n) return calc(), diagonal_sum[i];
     return 0;
   }
   vector<Ele> g() { return g_; }
@@ -426,7 +482,7 @@ Poly<Mod> Poly<Mod>::exp() const {
   recalcInvs(Mod, size());
   HalfOnlineConv worker(d);
   Func::Ele e = worker.set(1);
-  for (int i = 1; i < size(); i ++)
+  for (int i = 1; i < size(); i++)
     e = worker.set(worker.get(i - 1) * invs[i]);
   return Func(worker.g());
 }
