@@ -4,6 +4,7 @@
 #ifndef NO_TEMPLATE_IMPORT
 #include <functional>
 #include <string>
+#include <cassert>
 using std::function;
 using std::to_string;
 #endif
@@ -11,7 +12,6 @@ using std::to_string;
 
 #include "lib/gf/online_conv.h"
 #include "lib/gf/poly.h"
-#include "lib/math/binom.h"
 namespace gf {
 
 namespace idle_core {
@@ -23,8 +23,10 @@ struct PolyCache {
   vector<Ele> vals;
   vector<bool> used, request;
   int n;
-  bool store;
+  bool store, static_;
+  Poly<Mod> pl;
   PolyCache(int n = 0) : n(n) {
+    static_ = false;
     if (n == -1)
       store = false;
     else {
@@ -35,23 +37,15 @@ struct PolyCache {
       request.assign(n, 0);
     }
   }
-  PolyCache(vector<Ele> v) {
-    store = false;
-    handle = [=](int x) {
-      return (x < (int) v.size()) ? v[x] : Ele(0);
-    };
-  }
   Ele get(int x) {
     fflush(stdout);
-    if (x < 0)
-      throw "PolyCache::get() out of bound";
+    assert(x >= 0);
     if (!store)
       return handle(x);
     if (x >= n)
       vals.resize(x + 1), used.resize(x + 1), request.resize(x + 1), n = x + 1;
     if (!used[x]) {
-      if (request[x])
-        throw "PolyCache::get() invalid request";
+      assert(!request[x]);
       request[x] = true;
       vals[x] = handle(x);
       request[x] = false;
@@ -65,6 +59,18 @@ struct PolyCache {
   int size() const { return n; }
   PolyCache(PolyCache const &) = delete;
   PolyCache &operator=(PolyCache const &) = delete;
+};
+
+template <const unsigned int Mod>
+struct Const : PolyCache<Mod> {
+  using typename PolyCache<Mod>::Ele;
+  Const(vector<Ele> v) :PolyCache<Mod>(-1) {
+    this->static_ = true;
+    this->pl = v;
+    this->handle = [=](int x) {
+      return (x < (int) v.size()) ? v[x] : Ele(0);
+    };
+  }
 };
 
 template <const unsigned int Mod>
@@ -96,11 +102,11 @@ struct Del : PolyCache<Mod> {
 };
 
 template <const unsigned int Mod>
-struct Mul : PolyCache<Mod> {
+struct MulFull : PolyCache<Mod> {
   bool lblk, rblk;
   int lzero, rzero;
   OnlineConv<Mod> oc;
-  Mul(PolyCache<Mod> *l, PolyCache<Mod> *r) {
+  MulFull(PolyCache<Mod> *l, PolyCache<Mod> *r) {
     lblk = rblk = false;
     lzero = rzero = 0;
     oc = OnlineConv<Mod>();
@@ -122,6 +128,68 @@ struct Mul : PolyCache<Mod> {
     };
   }
 };
+
+template <const unsigned int Mod>
+struct MulSelf : PolyCache<Mod> {
+  bool lblk;
+  int lzero;
+  OnlineConvSingle<Mod> oc;
+  MulSelf(PolyCache<Mod> *l) {
+    lblk = false;
+    lzero = 0;
+    oc = OnlineConvSingle<Mod>();
+    this->handle = [l, this](int x) -> typename PolyCache<Mod>::Ele {
+      if (x)
+        this->get(x - 1);
+      while (x >= lzero * 2 && !lblk)
+        l->get(lzero) == 0 ? lzero++ : lblk = true;
+      if (x < lzero * 2)
+        return 0;
+      oc.set(l->get(x - lzero));
+      return oc.get(x - lzero * 2);
+    };
+  }
+};
+
+
+template <const unsigned int Mod>
+struct MulSemi : PolyCache<Mod> {
+  int lzero;
+  HalfOnlineConv<Mod, true> oc;
+  // l is static
+  MulSemi(PolyCache<Mod> *l, PolyCache<Mod> *r) {
+    lzero = 0;
+    while (l->get(lzero) == 0 && lzero < l->pl.size())
+      ++ lzero;
+    if (lzero == l->pl.size())
+      this->handle = [] (int x) { return 0; };
+    else {
+      oc = HalfOnlineConv<Mod, true>(l->pl.abst(lzero));
+      this->handle = [l, r, this](int x) -> typename PolyCache<Mod>::Ele {
+        if (x)
+          this->get(x - 1);
+        if (x < lzero)
+          return 0;
+        oc.set(r->get(x - lzero));
+        return oc.get(x - lzero);
+      };
+    }
+  }
+};
+
+template <const unsigned int Mod>
+PolyCache<Mod> *mul_entrance (PolyCache<Mod> *l, PolyCache<Mod> *r) {
+  if (l -> static_ && r -> static_)
+    return new Const<Mod>((l -> pl * r -> pl).raw());
+  if (l -> static_)
+    return new MulSemi(l, r);
+  if (r -> static_)
+    return new MulSemi(r, l);
+  if (l == r)
+    return new MulSelf(l);
+  return new MulFull(l, r);
+}
+
 
 template <const unsigned int Mod>
 struct Trans : PolyCache<Mod> {
@@ -158,7 +226,8 @@ struct PreSum : PolyCache<Mod> {
 
 template <const unsigned int Mod>
 struct MulInt : PolyCache<Mod> {
-  MulInt(PolyCache<Mod> *l, int v) :PolyCache<Mod>(-1) {
+  using typename PolyCache<Mod>::Ele;
+  MulInt(PolyCache<Mod> *l, Ele v) :PolyCache<Mod>(-1) {
     this->handle = [=](int x) {
       return l->get(x) * v;
     };
@@ -205,13 +274,11 @@ struct Deri : PolyCache<Mod> {
 template <const unsigned int Mod>
 struct Inte : PolyCache<Mod> {
   using typename PolyCache<Mod>::Ele;
-  Inv<Mod> iv;
   Inte(PolyCache<Mod> *l, Ele c = 0) :PolyCache<Mod>(-1) {
     this->handle = [=, this](int x) {
       if (x == 0)
         return Ele(c);
-      iv.assign(x);
-      return l->get(x - 1) * iv[x];
+      return l->get(x - 1) * recalcInvs<Mod>(x)[x];
     };
   }
 };
@@ -219,19 +286,19 @@ struct Inte : PolyCache<Mod> {
 template <const unsigned int Mod>
 struct Exp : PolyCache<Mod> {
   Exp(PolyCache<Mod> *l) {
-    this->bind(new Inte(new Mul(new Deri(l), this), 1));
+    this->bind(new Inte(mul_entrance(new Deri(l), this), 1));
   }
 };
 
 template <const unsigned int Mod>
 struct Inv : PolyCache<Mod> {
   using typename PolyCache<Mod>::Ele;
-  Mul<Mod> *mul;
+  PolyCache<Mod> *mul;
   Ele inv0;
   Inv(PolyCache<Mod> *l) {
     inv0 = Ele();
     // prevent dependency loop
-    mul = new Mul(new Corner(l, {0}), this);
+    mul = mul_entrance(new Corner(l, {0}), this);
     this->handle = [l, this](int x) {
       if (!x)
         return inv0 = l->get(0).inv();
@@ -249,7 +316,7 @@ struct Div : PolyCache<Mod> {
   Div(PolyCache<Mod> *l, PolyCache<Mod> *r) {
     d = new Del(
         l,
-        new Mul(new Corner(r, {0}), this));
+        mul_entrance(new Corner(r, {0}), this));
     inv0 = Ele();
     this->handle = [this, l, r](int x) {
       if (!x)
@@ -275,7 +342,7 @@ struct Sqrt : PolyCache<Mod> {
   Sqrt(PolyCache<Mod> *l, Ele v) {
     cor = new Corner(this, {0});
     Ele coef = (v * 2).inv();
-    m = new Del(l, new Mul(cor, cor));
+    m = new Del(l, mul_entrance(cor, cor));
     this->handle = [this, v, coef](int x) {
       return !x ? v : m->get(x) * coef;
     };
@@ -314,7 +381,7 @@ struct Pow : PolyCache<Mod> {
         s = new Inte(
             new Div(
                 new MulInt(
-                    new Mul(new Deri(r), this), k),
+                    mul_entrance(new Deri(r), this), k),
                 r));
         return r->get(0).pow(r2);
       }
@@ -334,20 +401,21 @@ struct Idle {
   }
   Ele get(int x) { return pc->get(x); }
   // do not store here
-  Idle(vector<Ele> p) { pc = new PolyCache<Mod>(p); }
+  Idle(vector<Ele> p) { pc = new Const<Mod>(p); }
   vector<Ele> await(int w) {
-    vector<Ele> res;
-    for (int i = 0; i < w; i++)
-      res.push_back(pc->get(i));
+    vector<Ele> res(w);
+    // activate inv / root recalculation in advance
+    for (int i = w - 1; i >= 0; i--)
+      res[i] = pc->get(i);
     return res;
   }
   Idle(function<Ele(int, function<Ele(int)>)> f) { pc = new Build(f); }
   Idle operator+(const Idle &i) const { return Idle(new Add(pc, i.pc)); }
   Idle operator-(const Idle &i) const { return Idle(new Del(pc, i.pc)); }
-  Idle operator*(const Idle &i) const { return Idle(new Mul(pc, i.pc)); }
-  Idle operator*(const int x) const { return Idle(new MulInt(pc, x)); }
+  Idle operator*(const Idle &i) const { return Idle(mul_entrance(pc, i.pc)); }
+  Idle operator*(const Ele x) const { return Idle(new MulInt(pc, x)); }
   Idle operator/(const Idle &i) const { return Idle(new Div(pc, i.pc)); }
-  Idle operator/(const int x) const { return Idle(new MulInt(pc, Ele(x).invVal())); }
+  Idle operator/(const Ele x) const { return Idle(new MulInt(pc, x.invVal())); }
   Idle dot(const Idle &i) const { return Idle(new Dot(pc, i.pc)); }
   Idle corner(vector<Ele> v) { return Idle(new Corner(pc, v)); }
   Idle trans(function<Ele(Ele, int, function<Ele(int)>)> f) { return Idle(new Trans(pc, f)); }

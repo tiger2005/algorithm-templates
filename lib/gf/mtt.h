@@ -6,6 +6,7 @@
 using std::function;
 #endif
 // impl
+// only works when n <= 1e5, haha
 #include "lib/gf/fft.h"
 namespace gf {
 template <typename T>
