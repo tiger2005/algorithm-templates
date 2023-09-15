@@ -42,43 +42,43 @@ struct Tree {
     }
   }
   void init(Graph g, int nr = -1) {
+    auto dfs = [&] (auto self, int x) -> void {
+      if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] = 1;
+      for (auto v: g[x]) {
+        if (fa[v])
+          continue;
+        son[x].push_back(v);
+        if constexpr (OBT & OBTAIN_TREE_DEPTH) deps[v] = deps[x] + 1;
+        fa[v] = x; self(self, v);
+        if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] += sizes[v];
+      }
+    };
     for (int i = 1; i <= n; i ++) {
       if (nr == i || (nr == -1 && !fa[i])) {
         fa[i] = i; root = i;
         if constexpr (OBT & OBTAIN_TREE_DEPTH) deps[i] = 1;
-        auto dfs = [&] (auto self, int x) -> void {
-          if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] = 1;
-          for (auto v: g[x]) {
-            if (fa[v])
-              continue;
-            son[x].push_back(v);
-            if constexpr (OBT & OBTAIN_TREE_DEPTH) deps[v] = deps[x] + 1;
-            fa[v] = x; self(self, v);
-            if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] += sizes[v];
-          }
-        };
         dfs(dfs, i);
       }
     }
   }
   void init(graph::GraphLength<T> g, int nr = -1) {
+    auto dfs = [&] (auto self, int x) -> void {
+      if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] = 1;
+      for (auto [v, w]: g[x]) {
+        if (fa[v])
+          continue;
+        son[x].push_back(v);
+        if constexpr (OBT & OBTAIN_TREE_DEPTH) deps[v] = deps[x] + 1;
+        if constexpr (OBT & OBTAIN_TREE_VALUE) val[v] = w;
+        fa[v] = x;
+        self(self, v);
+        if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] += sizes[v];
+      }
+    };
     for (int i = 1; i <= n; i ++) {
       if (nr == i || (nr == -1 && !fa[i])) {
         fa[i] = i; root = i;
         if constexpr (OBT & OBTAIN_TREE_DEPTH) deps[i] = 1;
-        auto dfs = [&] (auto self, int x) -> void {
-          if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] = 1;
-          for (auto [v, w]: g[x]) {
-            if (fa[v])
-              continue;
-            son[x].push_back(v);
-            if constexpr (OBT & OBTAIN_TREE_DEPTH) deps[v] = deps[x] + 1;
-            if constexpr (OBT & OBTAIN_TREE_VALUE) val[v] = w;
-            fa[v] = x;
-            self(self, v);
-            if constexpr (OBT & OBTAIN_TREE_SIZE) sizes[x] += sizes[v];
-          }
-        };
         dfs(dfs, i);
       }
     }

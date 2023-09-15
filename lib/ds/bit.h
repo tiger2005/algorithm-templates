@@ -28,6 +28,8 @@ struct BIT {
     vt.assign(n + 1, e);
   }
   void apply(int a, T x) {
+    if (a == 0)
+      return;
     while (a <= n) {
       vt[a] = op(vt[a], x);
       a += a & -a;

@@ -7,7 +7,6 @@ const unsigned int Md = Md3;
 #endif
 // impl
 #include "lib/misc/io.h"
-#include "lib/math/montgomery.h"
 namespace modular {
 template <const unsigned int mod>
 struct Z {
@@ -16,18 +15,28 @@ struct Z {
   using i32 = int;
   using u32 = unsigned int;
   using u64 = unsigned long long;
-  u32 v_;
-  static constexpr u32 r = mont_get_r(mod);
+  static constexpr u32 get_r() {
+    u32 two = 2, iv = mod * (two - mod * mod);
+    iv *= (two - mod * iv);
+    iv *= (two - mod * iv);
+    return iv * (mod * iv - two);
+  }
+  static constexpr u32 reduce(u64 x) { return (x + u64(u32(x) * r) * mod) >> 32; }
+  static constexpr u32 norm(u32 x) { return x - (mod & -((mod - 1 - x) >> 31)); }
+  static constexpr u32 r = get_r();
   static constexpr u32 r2 = -u64(mod) % mod;
   static constexpr u32 mod2 = mod << 1;
+  u32 v_;
   constexpr Z() : v_(0) {}
   template <typename T, std::enable_if_t<std::is_integral<T>::value, int> = 0>
-  constexpr Z(T v) : v_(mont_reduce(u64(v % i32(mod) + i32(mod)) * r2, r, mod)) {}
+  constexpr Z(T v) : v_(reduce(u64(v % i32(mod) + i32(mod)) * r2)) {}
   constexpr Z(const Z&) = default;
+
   static constexpr u32 getMod() { return mod; }
-  constexpr u32 get() const { return mont_norm(mont_reduce(v_, r, mod), mod); }
+  constexpr u32 get() const { return norm(reduce(v_)); }
   template <typename T, std::enable_if_t<std::is_integral<T>::value, int> = 0>
   explicit constexpr operator T() const { return T(get()); }
+  
   static constexpr u32 get_primitive_root_prime() {
     u32 tmp[32] = {}; int cnt = 0;
     const u32 phi = mod - 1; u32 m = phi;
@@ -78,15 +87,15 @@ struct Z {
   constexpr i32 invVal() const { return inv().get(); }
   constexpr Z operator+=(const Z& z) { return v_ += z.v_ - mod2, v_ += mod2 & -(v_ >> 31), *this; }
   constexpr Z operator-=(const Z& z) { return v_ -= z.v_, v_ += mod2 & -(v_ >> 31), *this; }
-  constexpr Z operator*=(const Z& z) { v_ = mont_reduce(u64(v_) * z.v_, r, mod); return *this; }
+  constexpr Z operator*=(const Z& z) { return v_ = reduce(u64(v_) * z.v_), *this; }
   constexpr Z operator/=(const Z& z) { return operator*=(z.inv()); }
   constexpr Z& operator=(const Z&) = default;
   friend constexpr Z operator+(const Z& lhs, const Z& rhs) { return Z(lhs) += rhs; }
   friend constexpr Z operator-(const Z& lhs, const Z& rhs) { return Z(lhs) -= rhs; }
   friend constexpr Z operator*(const Z& lhs, const Z& rhs) { return Z(lhs) *= rhs; }
   friend constexpr Z operator/(const Z& lhs, const Z& rhs) { return Z(lhs) /= rhs; }
-  friend constexpr bool operator==(const Z& lhs, const Z& rhs) { return mont_norm(lhs.v_, mod) == mont_norm(rhs.v_, mod); }
-  friend constexpr bool operator!=(const Z& lhs, const Z& rhs) { return mont_norm(lhs.v_, mod) != mont_norm(rhs.v_, mod); }
+  friend constexpr bool operator==(const Z& lhs, const Z& rhs) { return norm(lhs.v_) == norm(rhs.v_); }
+  friend constexpr bool operator!=(const Z& lhs, const Z& rhs) { return norm(lhs.v_) != norm(rhs.v_); }
   inline Z& operator++() { return (*this) += 1, *this; }
   inline Z& operator--() { return (*this) -= 1, *this; }
   inline Z operator++(int) { Z result(*this); *this += 1; return result; }

@@ -9,36 +9,38 @@ using std::vector;
 // impl
 namespace math {
 namespace prime {
-vector<bool> excludes({false, false});
+vector<bool> including({false, false});
 vector<int> primes;
 int n_field = 1;
 void expand(int n) {
-  excludes.resize(n + 1);
+  if (n <= n_field)
+    return;
+  including.resize(n + 1, true);
   // extra sieve
   for (auto p: primes) {
     int start = (n_field / p + 1) * p;
     for (; start <= n; start += p)
-      excludes[start] = true;
+      including[start] = false;
   }
   // main
   for (int i = n_field + 1; i <= n; i ++) {
-    if (!excludes[i])
+    if (including[i])
       primes.push_back(i);
     for (auto p: primes) {
       if (i * p > n)
         break;
-      excludes[i * p] = true;
+      including[i * p] = false;
       if (i % p == 0)
         break;
     }
   }
   n_field = n;
 }
-vector<int> getPrimes(int n) {
+vector<int> &getPrimes(int n) {
   return expand(n), primes;
 }
-vector<bool> getPrimeMap(int n) {
-  return expand(n), excludes;
+vector<bool> &getPrimeMap(int n) {
+  return expand(n), including;
 }
 // sqrt(r), r - l should be small
 vector<long long> rangePrimes(long long l, long long r) {

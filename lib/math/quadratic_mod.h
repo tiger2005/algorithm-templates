@@ -13,6 +13,7 @@ namespace math {
 
 template <const unsigned int Mod>
 modular::Z<Mod> quadratic_residue(modular::Z<Mod> n) {
+  using Z = modular::Z<Mod>;
   if (n == 0)
     return Z(0);
   if (n.pow((Mod - 1) / 2) != 1)
