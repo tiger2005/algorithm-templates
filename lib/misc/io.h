@@ -3,10 +3,12 @@
 #define TEMPLATE_CPP_IO 1
 #ifndef NO_TEMPLATE_IMPORT
 #include <string>
+#include <tuple>
 #include <vector>
 using std::ifstream;
 using std::ofstream;
 using std::string;
+using std::tuple;
 using std::vector;
 #endif
 // impl
@@ -83,15 +85,17 @@ struct IOReader {
     return *this;
   }
   template <typename T1, typename T2>
-  inline const IOReader& operator>>(std::pair<T1, T2> &p) const {
+  inline const IOReader& operator>>(std::pair<T1, T2>& p) const {
     return operator>>(p.first), operator>>(p.second), *this;
   }
+  template <typename... Ts>
+  inline const IOReader& operator>>(std::tuple<Ts...>& p) const;
 #undef importRealReader
 };
 const IOReader io;
 #define importReader(type, name) \
   type name() {                  \
-    type a;                     \
+    type a;                      \
     io >> a;                     \
     return a;                    \
   }
@@ -102,6 +106,48 @@ importReader(float, readFL) importReader(double, readDB) importReader(long doubl
 importReader(string, readToken)
 #undef importReader
 #undef gc
+template <typename T>
+void read(T& val) {
+  io >> val;
+}
+template <typename T>
+void read(int l, int r, T& A) {
+  for (int i = l; i <= r; i++) io >> A[i];
+}
+template <typename T>
+void write(int l, int r, T& A, const char* sp) {
+  for (int i = l; i <= r; i++) printf(sp, A[i]);
+}
+template <typename T>
+void write(auto& A, const T* sp) {
+  for (auto e : A) printf(sp, e);
+}
+template <typename T = int>
+T read() {
+  T res;
+  io >> res;
+  return res;
+}
+template <typename Tuple, typename Func, size_t... N>
+void func_call_tuple(Tuple& t, Func&& func, std::index_sequence<N...>) {
+  static_cast<void>(std::initializer_list<int>{(func(std::get<N>(t)), 0)...});
+}
+template <typename... Args, typename Func>
+void travel_tuple(std::tuple<Args...>& t, Func&& func) {
+  func_call_tuple(t, std::forward<Func>(func), std::make_index_sequence<sizeof...(Args)>{});
+}
+template <typename... Ts>
+tuple<Ts...> reads() {
+  tuple<Ts...> res;
+  travel_tuple(res, [&](auto&& val) {
+    io >> val;
+  });
+  return res;
+}
+template <typename... Ts>
+inline const IOReader& IOReader::operator>>(std::tuple<Ts...>& p) const {
+  return p = reads<Ts...>(), *this;
+}
 template <typename T = int>
 vector<T> getv(int n, int start = 0) {
   vector<T> res(start + n);
@@ -109,6 +155,13 @@ vector<T> getv(int n, int start = 0) {
     io >> res[i];
   return res;
 }
+template <typename T, typename... Ts>
+vector<tuple<T, Ts...>> getv(int n, int start = 0) {
+  vector<tuple<T, Ts...>> res(start + n);
+  for (int i = start; i < start + n; i++)
+    io >> res[i];
+  return res;
 }
+}  // namespace io_lib
 using namespace io_lib;
 #endif
