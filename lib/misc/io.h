@@ -88,78 +88,52 @@ struct IOReader {
   inline const IOReader& operator>>(std::pair<T1, T2>& p) const {
     return operator>>(p.first), operator>>(p.second), *this;
   }
+  template <typename T, const unsigned long long N>
+  inline const IOReader& operator>>(std::array<T, N>& p) const {
+    for (unsigned long long i = 0; i < N; i ++)
+      operator>>(p[i]);
+    return *this;
+  }
   template <typename... Ts>
   inline const IOReader& operator>>(std::tuple<Ts...>& p) const;
 #undef importRealReader
 };
 const IOReader io;
-#define importReader(type, name) \
-  type name() {                  \
-    type a;                      \
-    io >> a;                     \
-    return a;                    \
-  }
-importReader(int, readInt) importReader(unsigned int, readUInt)
-importReader(long long, readLL) importReader(unsigned long long, readULL)
-importReader(short, readShort) importReader(unsigned short, readUShort)
-importReader(float, readFL) importReader(double, readDB) importReader(long double, readLDB)
-importReader(string, readToken)
-#undef importReader
 #undef gc
 template <typename T>
-void read(T& val) {
-  io >> val;
-}
+void read(T& val) { io >> val; }
 template <typename T>
-void read(int l, int r, T& A) {
-  for (int i = l; i <= r; i++) io >> A[i];
-}
+void read(int l, int r, T& A) { for (int i = l; i <= r; i++) io >> A[i]; }
 template <typename T>
-void write(int l, int r, T& A, const char* sp) {
-  for (int i = l; i <= r; i++) printf(sp, A[i]);
-}
+void write(const T& A, int l, int r, const char* sp, const char* end = "") { for (int i = l; i <= r; i++) printf(sp, A[i]); printf("%s", end); }
 template <typename T>
-void write(auto& A, const T* sp) {
-  for (auto e : A) printf(sp, e);
-}
+void write(const auto& A, const T* sp, const char* end = "") {for (auto e : A) printf(sp, e); printf("%s", end); }
 template <typename T = int>
-T read() {
-  T res;
-  io >> res;
-  return res;
-}
+T read() { T res; io >> res; return res; }
+template <typename T, int N>
+std::array<T, N> read() { return read<std::array<T, N>>(); }
 template <typename Tuple, typename Func, size_t... N>
-void func_call_tuple(Tuple& t, Func&& func, std::index_sequence<N...>) {
-  static_cast<void>(std::initializer_list<int>{(func(std::get<N>(t)), 0)...});
-}
+void func_call_tuple(Tuple& t, Func&& func, std::index_sequence<N...>) { static_cast<void>(std::initializer_list<int>{(func(std::get<N>(t)), 0)...}); }
 template <typename... Args, typename Func>
-void travel_tuple(std::tuple<Args...>& t, Func&& func) {
-  func_call_tuple(t, std::forward<Func>(func), std::make_index_sequence<sizeof...(Args)>{});
-}
+void travel_tuple(std::tuple<Args...>& t, Func&& func) { func_call_tuple(t, std::forward<Func>(func), std::make_index_sequence<sizeof...(Args)>{}); }
 template <typename... Ts>
 tuple<Ts...> reads() {
   tuple<Ts...> res;
-  travel_tuple(res, [&](auto&& val) {
-    io >> val;
-  });
+  travel_tuple(res, [&](auto&& val) { io >> val; });
   return res;
 }
 template <typename... Ts>
-inline const IOReader& IOReader::operator>>(std::tuple<Ts...>& p) const {
-  return p = reads<Ts...>(), *this;
-}
+inline const IOReader& IOReader::operator>>(std::tuple<Ts...>& p) const { return p = reads<Ts...>(), *this; }
 template <typename T = int>
 vector<T> getv(int n, int start = 0) {
   vector<T> res(start + n);
-  for (int i = start; i < start + n; i++)
-    io >> res[i];
+  for (int i = start; i < start + n; i++) io >> res[i];
   return res;
 }
-template <typename T, typename... Ts>
-vector<tuple<T, Ts...>> getv(int n, int start = 0) {
-  vector<tuple<T, Ts...>> res(start + n);
-  for (int i = start; i < start + n; i++)
-    io >> res[i];
+template <typename T, typename T1, typename... Ts>
+vector<tuple<T, T1, Ts...>> getv(int n, int start = 0) {
+  vector<tuple<T, T1, Ts...>> res(start + n);
+  for (int i = start; i < start + n; i++) io >> res[i];
   return res;
 }
 }  // namespace io_lib

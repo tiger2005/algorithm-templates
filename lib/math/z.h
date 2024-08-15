@@ -55,7 +55,7 @@ struct Z {
   }
   template <typename T, std::enable_if_t<std::is_signed<T>::value, int> = 0>
   constexpr Z pow(T y) const {
-    if (y < 0) y = y % (mod - 1) + (mod - 1);
+    if (y < 0) y = y % (int)(mod - 1) + (mod - 1);
     Z bas(*this), ret = (y & 1) ? bas : 1;
     while (y >>= 1) {
       bas *= bas;

@@ -19,8 +19,9 @@ struct MCMF {
   vector<T2> dep;
   vector<int> cur;
   vector<bool> vis;
-  MCMF(int n = 0, int m = 0, int S = 0, int E = 0)
-    :n(n), m(m), S(S), E(E), g(GraphLink<pair<T1, T2>>(n, 0, true, true)) {
+  T2 inf;
+  MCMF(int n, int m, int S = 0, int E = 0, T2 inf = std::numeric_limits<T2>::max())
+    :n(n), m(m), inf(inf), S(S), E(E), g(GraphLink<pair<T1, T2>>(n, 0, true, true)) {
     dep.assign(n + 1, 0);
     cur.assign(n + 1, 0);
     vis.assign(n + 1, 0);
@@ -34,7 +35,7 @@ struct MCMF {
   void setT(int x) { E = x; }
   bool bfs() {
     queue<int> q;
-    std::fill(dep.begin(), dep.end(), std::numeric_limits<T2>::max());
+    std::fill(dep.begin(), dep.end(), inf);
     for (int i = 1; i <= n; i ++)
       cur[i] = g.head(i);
     dep[S] = 0; q.push(S);
